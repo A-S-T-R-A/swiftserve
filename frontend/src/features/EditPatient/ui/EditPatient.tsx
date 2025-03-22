@@ -34,14 +34,14 @@ export function EditPatient(props: TEditPatientProps) {
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
+    // const formData = new FormData(e.currentTarget);
 
     mutate(
       {
-        name: formData.get("name") as string,
-        surname: formData.get("surname") as string,
-        phone: formData.get("phone") as string,
-        other: formData.get("other-info") as string,
+        name: new Date().getTime().toString(), // formData.get("name") as string,
+        surname: "test321", // formData.get("surname") as string,
+        phone: "321321", // formData.get("phone") as string,
+        other: "dsads", // formData.get("other-info") as string,
         patientId: userId,
       },
       {
@@ -69,7 +69,8 @@ export function EditPatient(props: TEditPatientProps) {
             </Label>
             <Input
               id="name"
-              value={patientData?.name ?? ""}
+              name="name"
+              defaultValue={patientData?.name ?? ""}
               className="col-span-3"
               required
             />
@@ -80,7 +81,8 @@ export function EditPatient(props: TEditPatientProps) {
             </Label>
             <Input
               id="surname"
-              value={patientData?.surname}
+              name="surname"
+              defaultValue={patientData?.surname}
               className="col-span-3"
             />
           </div>
@@ -90,7 +92,8 @@ export function EditPatient(props: TEditPatientProps) {
             </Label>
             <Input
               id="phone"
-              value={patientData?.phone}
+              name="phone"
+              defaultValue={patientData?.phone}
               className="col-span-3"
             />
           </div>
@@ -100,7 +103,8 @@ export function EditPatient(props: TEditPatientProps) {
             </Label>
             <Textarea
               id="other-info"
-              value={patientData?.other}
+              name="other-info"
+              defaultValue={patientData?.other}
               className="col-span-3"
             />
           </div>

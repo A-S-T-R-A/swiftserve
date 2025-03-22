@@ -7,5 +7,7 @@ export async function postUpdatePatient(data: {
   other: string;
   patientId: number;
 }) {
-  return await api.post(`/patients/${data.patientId}`, data);
+  const { patientId, ...rest } = data;
+
+  return await api.patch(`/patients/${patientId}`, rest);
 }

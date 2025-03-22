@@ -1,4 +1,4 @@
-import { UserSchema, type TUser } from "@/entities/User";
+import { UserSchema } from "@/entities/User";
 import { api } from "@/shared/api/api";
 import { z } from "zod";
 
@@ -6,15 +6,8 @@ const ResponseSchema = z.array(UserSchema);
 
 export async function getUsers() {
   const response = await api.get("/patients");
-  const updatedData: TUser[] = response.data.map((user: any) => ({
-    id: user.id,
-    name: user.name,
-    surname: user.username,
-    phone: user.address.zipcode,
-    other: user.email,
-  }));
 
-  const result = ResponseSchema.safeParse(updatedData);
+  const result = ResponseSchema.safeParse(response.data);
 
   if (result.error) {
     console.log(result.error);
