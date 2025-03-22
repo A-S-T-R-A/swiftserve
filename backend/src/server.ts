@@ -8,7 +8,9 @@ const server = fastify({
 });
 
 server.register(cors, {
-    origin: true
+    origin: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    credentials: true
 });
 
 server.register(patientRoutes, { prefix: '/api/patients' });
