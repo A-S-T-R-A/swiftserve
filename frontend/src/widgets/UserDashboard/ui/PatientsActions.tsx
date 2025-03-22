@@ -46,7 +46,7 @@ export function PatientsActions({ userId }: { userId: number }) {
         <DropdownMenuContent align="end">
           <DropdownMenuItem
             onClick={() =>
-              navigate({ to: `/patient/${userId}/appintments/create` })
+              navigate({ to: `/patients/${userId}/appointments/create` })
             }
             className="cursor-pointer"
           >

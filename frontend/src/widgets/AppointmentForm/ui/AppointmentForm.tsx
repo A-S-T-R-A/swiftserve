@@ -1,5 +1,6 @@
 import { useUserStore } from "@/entities/User";
 import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
+import { PrintSummaryButton } from "@/features/PrintSummary";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/ui/button";
@@ -26,14 +27,14 @@ export function AppointmentForm() {
 
     mutate({
       patientId: Number(id),
-      reason: formData.get("reason") as string,
-      diagnosis: formData.get("diagnosis") as string,
-      prescription: formData.get("prescription") as string,
-      bp: Number(formData.get("bp")),
-      heartRate: Number(formData.get("heartRate")),
-      weight: Number(formData.get("weight")),
-      height: Number(formData.get("height")),
-      notes: formData.get("notes") as string,
+      reason: "reason", // formData.get("reason") as string,
+      diagnosis: "diagnosis", // formData.get("diagnosis") as string,
+      prescription: "prescription", // formData.get("prescription") as string,
+      bp: 21, //Number(formData.get("bp")),
+      heartRate: 11, // Number(formData.get("heartRate")),
+      weight: 22, // Number(formData.get("weight")),
+      height: 22, // Number(formData.get("height")),
+      notes: "321", // formData.get("notes") as string,
     });
   }
 
@@ -99,7 +100,7 @@ export function AppointmentForm() {
       </div>
       <div className="ml-auto flex gap-3">
         <Button type="submit">Save</Button>
-        <Button type="button">Print Summary</Button>
+        <PrintSummaryButton id={Number(id)} />
       </div>
     </form>
   );

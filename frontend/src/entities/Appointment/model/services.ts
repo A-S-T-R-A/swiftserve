@@ -6,7 +6,7 @@ const ResponseSchema = z.array(AppointmentSchema);
 export async function getAppointments() {
   const response = await api.get("/appointments");
 
-  const result = ResponseSchema.safeParse(response);
+  const result = ResponseSchema.safeParse(response.data);
 
   if (result.error) {
     console.log(result.error);
@@ -19,7 +19,7 @@ export async function getAppointments() {
 export async function getAppointmentById(id: number) {
   const response = await api.get(`/appointments/${id}`);
 
-  const result = AppointmentSchema.safeParse(response);
+  const result = AppointmentSchema.safeParse(response.data);
 
   if (result.error) {
     console.log(result.error);

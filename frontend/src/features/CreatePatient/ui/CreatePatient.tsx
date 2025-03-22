@@ -28,14 +28,14 @@ export function CreatePatient() {
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    const formData = new FormData(e.currentTarget);
+    // const formData = new FormData(e.currentTarget);
 
     mutate(
       {
-        name: formData.get("name") as string,
-        surname: formData.get("surname") as string,
-        phone: formData.get("phone") as string,
-        other: formData.get("other-info") as string,
+        name: new Date().getTime().toString(), //formData.get("name") as string,
+        surname: "test321", // formData.get("surname") as string,
+        phone: "123", //formData.get("phone") as string,
+        other: "32131", //formData.get("other-info") as string,
       },
       {
         onSuccess: () => {
@@ -66,24 +66,19 @@ export function CreatePatient() {
             <Label htmlFor="name" className="text-right">
               Name
             </Label>
-            <Input
-              id="name"
-              value="Pedro Duarte"
-              className="col-span-3"
-              required
-            />
+            <Input id="name" name="name" className="col-span-3" required />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="surname" className="text-right">
               Surname
             </Label>
-            <Input id="surname" value="@peduarte" className="col-span-3" />
+            <Input id="surname" name="surname" className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="phone" className="text-right">
               Phone
             </Label>
-            <Input id="phone" value="@peduarte" className="col-span-3" />
+            <Input id="phone" name="phone" className="col-span-3" />
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="other-info" className="text-right">
@@ -91,7 +86,7 @@ export function CreatePatient() {
             </Label>
             <Textarea
               id="other-info"
-              value="@peduarte"
+              name="other-info"
               className="col-span-3"
             />
           </div>
