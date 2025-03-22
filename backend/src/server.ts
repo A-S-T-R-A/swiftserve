@@ -2,7 +2,7 @@ import fastify from 'fastify';
 import cors from '@fastify/cors';
 import { patientRoutes } from './routes/patient.routes';
 import { appointmentRoutes } from './routes/appointment.routes';
-
+import { gptRoutes } from './routes/gpt.routes';
 const server = fastify({
     logger: true
 });
@@ -15,6 +15,7 @@ server.register(cors, {
 
 server.register(patientRoutes, { prefix: '/api/patients' });
 server.register(appointmentRoutes, { prefix: '/api/appointments' });
+server.register(gptRoutes, { prefix: '/api/gpt' });
 
 server.get('/health', async () => {
     return { status: 'ok' };
