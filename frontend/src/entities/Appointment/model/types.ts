@@ -10,6 +10,7 @@ export const AppointmentSchema = z.object({
   weight: z.number(),
   height: z.number(),
   notes: z.string(),
+  createdAt: z.string(),
 });
 
 export type TAppointment = z.infer<typeof AppointmentSchema>;

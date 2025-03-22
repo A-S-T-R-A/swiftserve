@@ -27,14 +27,13 @@ function RouteComponent() {
         <Breadcrumb className="mb-20">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">
-                Appointment Management Dashboard
-              </BreadcrumbLink>
+              <BreadcrumbLink href="/">Patients</BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbLink href={`/patients/${id}/appointments`}>
-                {getSelectedUser(Number(id))?.name}
+                {getSelectedUser(Number(id))?.name}{" "}
+                {getSelectedUser(Number(id))?.surname}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

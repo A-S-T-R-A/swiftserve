@@ -10,139 +10,140 @@
 
 // Import Routes
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as PatientsIdAppointmentsIndexImport } from './routes/patients/$id/appointments/index'
-import { Route as PatientsIdAppointmentsCreateImport } from './routes/patients/$id/appointments/create'
-import { Route as PatientsIdAppointmentsIdIndexImport } from './routes/patients/$id/appointments/$id/index'
+import { Route as rootRoute } from "./routes/__root";
+import { Route as IndexImport } from "./routes/index";
+import { Route as PatientsIdAppointmentsIndexImport } from "./routes/patients/$id/appointments/index";
+import { Route as PatientsIdAppointmentsCreateImport } from "./routes/patients/$id/appointments/create";
+import { Route as PatientsIdAppointmentsAppointmentIdIndexImport } from "./routes/patients/$id/appointments/$appointmentId/index";
 
 // Create/Update Routes
 
 const IndexRoute = IndexImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRoute,
-} as any)
+} as any);
 
 const PatientsIdAppointmentsIndexRoute =
   PatientsIdAppointmentsIndexImport.update({
-    id: '/patients/$id/appointments/',
-    path: '/patients/$id/appointments/',
+    id: "/patients/$id/appointments/",
+    path: "/patients/$id/appointments/",
     getParentRoute: () => rootRoute,
-  } as any)
+  } as any);
 
 const PatientsIdAppointmentsCreateRoute =
   PatientsIdAppointmentsCreateImport.update({
-    id: '/patients/$id/appointments/create',
-    path: '/patients/$id/appointments/create',
+    id: "/patients/$id/appointments/create",
+    path: "/patients/$id/appointments/create",
     getParentRoute: () => rootRoute,
-  } as any)
+  } as any);
 
-const PatientsIdAppointmentsIdIndexRoute =
-  PatientsIdAppointmentsIdIndexImport.update({
-    id: '/patients/$id/appointments/$id/',
-    path: '/patients/$id/appointments/$id/',
+const PatientsIdAppointmentsAppointmentIdIndexRoute =
+  PatientsIdAppointmentsAppointmentIdIndexImport.update({
+    id: "/patients/$id/appointments/$appointmentId/",
+    path: "/patients/$id/appointments/$appointmentId/",
     getParentRoute: () => rootRoute,
-  } as any)
+  } as any);
 
 // Populate the FileRoutesByPath interface
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/patients/$id/appointments/create': {
-      id: '/patients/$id/appointments/create'
-      path: '/patients/$id/appointments/create'
-      fullPath: '/patients/$id/appointments/create'
-      preLoaderRoute: typeof PatientsIdAppointmentsCreateImport
-      parentRoute: typeof rootRoute
-    }
-    '/patients/$id/appointments/': {
-      id: '/patients/$id/appointments/'
-      path: '/patients/$id/appointments'
-      fullPath: '/patients/$id/appointments'
-      preLoaderRoute: typeof PatientsIdAppointmentsIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/patients/$id/appointments/$id/': {
-      id: '/patients/$id/appointments/$id/'
-      path: '/patients/$id/appointments/$id'
-      fullPath: '/patients/$id/appointments/$id'
-      preLoaderRoute: typeof PatientsIdAppointmentsIdIndexImport
-      parentRoute: typeof rootRoute
-    }
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/patients/$id/appointments/create": {
+      id: "/patients/$id/appointments/create";
+      path: "/patients/$id/appointments/create";
+      fullPath: "/patients/$id/appointments/create";
+      preLoaderRoute: typeof PatientsIdAppointmentsCreateImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/patients/$id/appointments/": {
+      id: "/patients/$id/appointments/";
+      path: "/patients/$id/appointments";
+      fullPath: "/patients/$id/appointments";
+      preLoaderRoute: typeof PatientsIdAppointmentsIndexImport;
+      parentRoute: typeof rootRoute;
+    };
+    "/patients/$id/appointments/$appointmentId/": {
+      id: "/patients/$id/appointments/$appointmentId/";
+      path: "/patients/$id/appointments/$appointmentId";
+      fullPath: "/patients/$id/appointments/$appointmentId";
+      preLoaderRoute: typeof PatientsIdAppointmentsAppointmentIdIndexImport;
+      parentRoute: typeof rootRoute;
+    };
   }
 }
 
 // Create and export the route tree
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/patients/$id/appointments/create': typeof PatientsIdAppointmentsCreateRoute
-  '/patients/$id/appointments': typeof PatientsIdAppointmentsIndexRoute
-  '/patients/$id/appointments/$id': typeof PatientsIdAppointmentsIdIndexRoute
+  "/": typeof IndexRoute;
+  "/patients/$id/appointments/create": typeof PatientsIdAppointmentsCreateRoute;
+  "/patients/$id/appointments": typeof PatientsIdAppointmentsIndexRoute;
+  "/patients/$id/appointments/$appointmentId": typeof PatientsIdAppointmentsAppointmentIdIndexRoute;
 }
 
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/patients/$id/appointments/create': typeof PatientsIdAppointmentsCreateRoute
-  '/patients/$id/appointments': typeof PatientsIdAppointmentsIndexRoute
-  '/patients/$id/appointments/$id': typeof PatientsIdAppointmentsIdIndexRoute
+  "/": typeof IndexRoute;
+  "/patients/$id/appointments/create": typeof PatientsIdAppointmentsCreateRoute;
+  "/patients/$id/appointments": typeof PatientsIdAppointmentsIndexRoute;
+  "/patients/$id/appointments/$appointmentId": typeof PatientsIdAppointmentsAppointmentIdIndexRoute;
 }
 
 export interface FileRoutesById {
-  __root__: typeof rootRoute
-  '/': typeof IndexRoute
-  '/patients/$id/appointments/create': typeof PatientsIdAppointmentsCreateRoute
-  '/patients/$id/appointments/': typeof PatientsIdAppointmentsIndexRoute
-  '/patients/$id/appointments/$id/': typeof PatientsIdAppointmentsIdIndexRoute
+  __root__: typeof rootRoute;
+  "/": typeof IndexRoute;
+  "/patients/$id/appointments/create": typeof PatientsIdAppointmentsCreateRoute;
+  "/patients/$id/appointments/": typeof PatientsIdAppointmentsIndexRoute;
+  "/patients/$id/appointments/$appointmentId/": typeof PatientsIdAppointmentsAppointmentIdIndexRoute;
 }
 
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/patients/$id/appointments/create'
-    | '/patients/$id/appointments'
-    | '/patients/$id/appointments/$id'
-  fileRoutesByTo: FileRoutesByTo
+    | "/"
+    | "/patients/$id/appointments/create"
+    | "/patients/$id/appointments"
+    | "/patients/$id/appointments/$appointmentId";
+  fileRoutesByTo: FileRoutesByTo;
   to:
-    | '/'
-    | '/patients/$id/appointments/create'
-    | '/patients/$id/appointments'
-    | '/patients/$id/appointments/$id'
+    | "/"
+    | "/patients/$id/appointments/create"
+    | "/patients/$id/appointments"
+    | "/patients/$id/appointments/$appointmentId";
   id:
-    | '__root__'
-    | '/'
-    | '/patients/$id/appointments/create'
-    | '/patients/$id/appointments/'
-    | '/patients/$id/appointments/$id/'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/patients/$id/appointments/create"
+    | "/patients/$id/appointments/"
+    | "/patients/$id/appointments/$appointmentId/";
+  fileRoutesById: FileRoutesById;
 }
 
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  PatientsIdAppointmentsCreateRoute: typeof PatientsIdAppointmentsCreateRoute
-  PatientsIdAppointmentsIndexRoute: typeof PatientsIdAppointmentsIndexRoute
-  PatientsIdAppointmentsIdIndexRoute: typeof PatientsIdAppointmentsIdIndexRoute
+  IndexRoute: typeof IndexRoute;
+  PatientsIdAppointmentsCreateRoute: typeof PatientsIdAppointmentsCreateRoute;
+  PatientsIdAppointmentsIndexRoute: typeof PatientsIdAppointmentsIndexRoute;
+  PatientsIdAppointmentsAppointmentIdIndexRoute: typeof PatientsIdAppointmentsAppointmentIdIndexRoute;
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   PatientsIdAppointmentsCreateRoute: PatientsIdAppointmentsCreateRoute,
   PatientsIdAppointmentsIndexRoute: PatientsIdAppointmentsIndexRoute,
-  PatientsIdAppointmentsIdIndexRoute: PatientsIdAppointmentsIdIndexRoute,
-}
+  PatientsIdAppointmentsAppointmentIdIndexRoute:
+    PatientsIdAppointmentsAppointmentIdIndexRoute,
+};
 
 export const routeTree = rootRoute
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
 /* ROUTE_MANIFEST_START
 {
@@ -153,7 +154,7 @@ export const routeTree = rootRoute
         "/",
         "/patients/$id/appointments/create",
         "/patients/$id/appointments/",
-        "/patients/$id/appointments/$id/"
+        "/patients/$id/appointments/$appointmentId/"
       ]
     },
     "/": {
@@ -165,8 +166,8 @@ export const routeTree = rootRoute
     "/patients/$id/appointments/": {
       "filePath": "patients/$id/appointments/index.tsx"
     },
-    "/patients/$id/appointments/$id/": {
-      "filePath": "patients/$id/appointments/$id/index.tsx"
+    "/patients/$id/appointments/$appointmentId/": {
+      "filePath": "patients/$id/appointments/$appointmentId/index.tsx"
     }
   }
 }
