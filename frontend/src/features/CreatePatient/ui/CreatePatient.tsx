@@ -53,7 +53,7 @@ export function CreatePatient() {
     }
   }, [isOpen]);
 
-  const handleChange = (key: any, value: string) => {
+  const handleChange = (key: keyof typeof data, value: string) => {
     setData((prev) => ({ ...prev, [key]: value }));
   };
 
