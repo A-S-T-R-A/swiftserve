@@ -6,12 +6,14 @@ export async function gptRoutes(fastify: FastifyInstance) {
     await fastify.register(multipart);
 
     fastify.post('/audio', async (request, reply) => {
+        console.log("Received audio request");
         const parts = request.parts();
 
         let filePart: MultipartFile | null = null;
         const fields: Record<string, string> = {};
 
         for await (const part of parts) {
+            console.log("Part", part);
             if (part.type === 'file') {
                 filePart = part;
             } else {
@@ -22,9 +24,12 @@ export async function gptRoutes(fastify: FastifyInstance) {
         if (!filePart || !fields.model || !fields.response_format) {
             return reply.status(400).send({ error: 'Missing required fields' });
         }
+        console.log("Building form data")
 
         // Read the file stream into memory
         const buffer = await filePart.toBuffer();
+
+        console.log("Buffer", buffer.length);
 
         // Create FormData object manually
         const formData = new FormData();
