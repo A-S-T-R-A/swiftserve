@@ -3,8 +3,6 @@ import { Main } from "@/shared/ui/main";
 import { UserDashboardTable } from "@/widgets/UserDashboard";
 import { AppHeader } from "@/widgets/AppHeader";
 import { CreatePatient } from "@/features/CreatePatient";
-import { useState } from "react";
-import type { PlusIcon } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   component: App,
@@ -20,7 +18,7 @@ function App() {
             User Management Dashboard
           </h1>
 
-          <CreatePatient data={{}} setData={() => {}} token="" />
+          <CreatePatient />
         </div>
 
         <UserDashboardTable />

@@ -1,11 +1,11 @@
 import { create } from "zustand";
-import type { TUser } from "./types";
+import type { TPatient } from "./types";
 
 type TUserStore = {
-  users: TUser[];
-  setUsers: (users: TUser[]) => void;
+  users: TPatient[];
+  setUsers: (users: TPatient[]) => void;
   deleteUser: (id: number) => void;
-  getSelectedUser: (id: number) => TUser | undefined;
+  getSelectedUser: (id: number) => TPatient | undefined;
 };
 
 export const useUserStore = create<TUserStore>((set, get) => ({

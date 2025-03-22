@@ -1,4 +1,4 @@
-import type { TUser } from "@/entities/Patient";
+import type { TPatient } from "@/entities/Patient";
 import { columns } from "../const/columns";
 
 const getNestedValue = (obj: Record<string, any>, path: string): string => {
@@ -8,8 +8,8 @@ const getNestedValue = (obj: Record<string, any>, path: string): string => {
   return typeof value === "string" ? value : "";
 };
 
-const convertJsonToCsv = (jsonData: TUser[]) => {
-  const rows = jsonData.map((rowData: TUser) =>
+const convertJsonToCsv = (jsonData: TPatient[]) => {
+  const rows = jsonData.map((rowData: TPatient) =>
     columns
       .map((column) => {
         const value = getNestedValue(rowData, column.accessorKey);
@@ -22,7 +22,7 @@ const convertJsonToCsv = (jsonData: TUser[]) => {
   return [columns.map((c) => c.header).join(","), ...rows].join("\n");
 };
 
-export const downloadJsonToCsv = (data: TUser[]) => {
+export const downloadJsonToCsv = (data: TPatient[]) => {
   const csv = convertJsonToCsv(data);
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
   const link = document.createElement("a");
