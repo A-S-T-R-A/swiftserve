@@ -19,17 +19,18 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import type { TUser } from "@/entities/User";
 // import { Input } from "@/shared/ui/input";
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps<TValue> {
+  columns: ColumnDef<TUser, TValue>[];
+  data: TUser[];
 }
 
-export function UserTable<TData, TValue>({
-  columns,
-  data,
-}: DataTableProps<TData, TValue>) {
+export function UserTable<TValue>({ columns, data }: DataTableProps<TValue>) {
+  const navigate = useNavigate();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [filtering, setFiltering] = useState("");
 
@@ -85,9 +86,18 @@ export function UserTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell
+                      key={cell.id}
+                      onClick={() => {
+                        if (cell.column.id === "actions") return;
+                        navigate({
+                          to: `/patients/${row.original.id}/appointments`,
+                        });
+                      }}
+                    >
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()

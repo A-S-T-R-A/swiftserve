@@ -1,5 +1,5 @@
 import type { ColumnDef } from "@tanstack/table-core";
-import { ActionsUser } from "@/features/ActionsUser";
+import { PatientsActions } from "../ui/PatientsActions";
 import type { TUser } from "@/entities/User";
 
 export const columns: ColumnDef<TUser>[] = [
@@ -25,7 +25,7 @@ export const columns: ColumnDef<TUser>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
-      return <ActionsUser userId={row.original.id} />;
+      return <PatientsActions userId={row.original.id} />;
     },
   },
 ];
