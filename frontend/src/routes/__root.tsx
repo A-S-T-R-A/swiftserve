@@ -4,8 +4,8 @@ import { SidebarProvider } from "@/shared/ui/sidebar";
 import { AppSidebar } from "@/widgets/AppSidebar";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useUserStore } from "@/entities/User";
-import { getUsers } from "@/entities/User/model/getUsers";
+import { useUserStore } from "@/entities/Patient";
+import { getUsers } from "@/entities/Patient/model/getUsers";
 
 export const Route = createRootRoute({
   component: () => {

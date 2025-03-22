@@ -1,5 +1,5 @@
 import { UserTable } from "./UserTable";
-import { useUserStore } from "@/entities/User";
+import { useUserStore } from "@/entities/Patient";
 import { useQuery } from "@tanstack/react-query";
 import { columns } from "../const/columns";
 

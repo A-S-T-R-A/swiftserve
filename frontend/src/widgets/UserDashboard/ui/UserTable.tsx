@@ -20,7 +20,7 @@ import {
 } from "@/shared/ui/table";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import type { TUser } from "@/entities/User";
+import type { TUser } from "@/entities/Patient";
 // import { Input } from "@/shared/ui/input";
 
 interface DataTableProps<TValue> {

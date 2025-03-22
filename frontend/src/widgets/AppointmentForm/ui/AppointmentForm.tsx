@@ -1,4 +1,4 @@
-import { useUserStore } from "@/entities/User";
+import { useUserStore } from "@/entities/Patient";
 import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
 import { PrintSummaryButton } from "@/features/PrintSummary";
 import { Label } from "@/shared/components/ui/label";

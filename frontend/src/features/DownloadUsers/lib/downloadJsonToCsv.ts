@@ -1,8 +1,10 @@
-import type { TUser } from "@/entities/User";
+import type { TUser } from "@/entities/Patient";
 import { columns } from "../const/columns";
 
 const getNestedValue = (obj: Record<string, any>, path: string): string => {
-  const value = path.split(".").reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ""), obj);
+  const value = path
+    .split(".")
+    .reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : ""), obj);
   return typeof value === "string" ? value : "";
 };
 
@@ -11,7 +13,9 @@ const convertJsonToCsv = (jsonData: TUser[]) => {
     columns
       .map((column) => {
         const value = getNestedValue(rowData, column.accessorKey);
-        return JSON.stringify(value, (_, value) => (value === null ? "" : value));
+        return JSON.stringify(value, (_, value) =>
+          value === null ? "" : value
+        );
       })
       .join(",")
   );
