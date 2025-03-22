@@ -32,6 +32,7 @@ export async function gptRoutes(fastify: FastifyInstance) {
         formData.append('model', fields.model);
         formData.append('response_format', fields.response_format);
 
+        console.log("Sending audio to OpenAI");
         try {
             const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
                 method: 'POST',
@@ -40,6 +41,7 @@ export async function gptRoutes(fastify: FastifyInstance) {
                 },
                 body: formData as unknown as BodyInit,
             });
+            console.log("Response from OpenAI", response);
 
             if (!response.ok) {
                 const error = await response.text();
@@ -64,6 +66,7 @@ export async function gptRoutes(fastify: FastifyInstance) {
         }
 
         try {
+            console.log("Sending completion to OpenAI");
             const response = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
                 headers: {
@@ -75,7 +78,7 @@ export async function gptRoutes(fastify: FastifyInstance) {
                     model,
                 }),
             });
-
+            console.log("Response from OpenAI", response);
             if (!response.ok) {
                 const error = await response.text();
                 return reply.status(response.status).send({ error });
