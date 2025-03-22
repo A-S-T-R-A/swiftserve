@@ -1,133 +1,89 @@
+import { useRef, useState } from "react";
 import { postGptRequest } from "@/entities/MedicalCard/model/services/postGptRequest";
-import { useEffect, useRef, useState } from "react";
 import {
   getMedicalRecordTranscript,
   getPatientTranscript,
-} from "../lib/gpt/getUserTranscript";
+} from "@/shared/lib/gpt/getUserTranscript";
 
-type SpeechRecognitionResult = SpeechRecognitionEvent["results"];
-
-export const useSpeechToForm = <T>(
+export const useAudioTranscription = (
   token: string,
-  onResult: (parsed: Partial<T>) => void,
-  dataType: "patient" | "medicalRecord",
-  onComplete?: () => void
+  onParsed: (parsed: any) => void,
+  onComplete: () => void,
+  type: "patient" | "record"
 ) => {
-  const recognitionRef = useRef<SpeechRecognition | null>(null);
-  const [listening, setListening] = useState(false);
-  const shouldListenRef = useRef(false);
-  const transcriptRef = useRef("");
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const [recording, setRecording] = useState(false);
 
-  useEffect(() => {
-    const SpeechRecognition =
-      window.SpeechRecognition || window.webkitSpeechRecognition;
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const mediaRecorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
 
-    if (!SpeechRecognition) {
-      console.error("Speech recognition not supported in this browser.");
-      return;
-    }
+    mediaRecorderRef.current = mediaRecorder;
+    chunksRef.current = [];
 
-    const recognition = new SpeechRecognition();
-    recognition.lang = "en-US";
-    recognition.continuous = true;
-    recognition.maxAlternatives = 1;
-    recognitionRef.current = recognition;
-
-    recognition.onstart = () => {
-      console.log("[Speech] Recognition started");
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunksRef.current.push(event.data);
     };
 
-    recognition.onresult = async (event: SpeechRecognitionEvent) => {
-      const results: SpeechRecognitionResult = event.results;
-      console.log("[Speech] Got result event:", results);
+    mediaRecorder.start();
+    setRecording(true);
+  };
 
-      for (let i = event.resultIndex; i < results.length; ++i) {
-        const result = results[i];
-        if (result.isFinal) {
-          const text = result[0].transcript;
-          console.log("[Speech] Final transcript segment:", text);
-          transcriptRef.current += text;
-        }
-      }
+  const stopRecording = (): Promise<void> =>
+    new Promise((resolve, reject) => {
+      const mediaRecorder = mediaRecorderRef.current;
+      if (!mediaRecorder) return reject("No recorder");
 
-      const finalTranscript = transcriptRef.current.trim();
-      if (finalTranscript) {
-        console.log("[Speech] Full final transcript:", finalTranscript);
-
-        transcriptRef.current = "";
-
-        const currentTranscript =
-          dataType === "patient"
-            ? getPatientTranscript(finalTranscript)
-            : getMedicalRecordTranscript(finalTranscript);
-
-        console.log("[GPT] Prompt:", currentTranscript);
-
+      mediaRecorder.onstop = async () => {
         try {
-          const response = await postGptRequest(currentTranscript, token);
-          console.log("[GPT] Raw response:", response);
+          const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
 
-          const parsed: Partial<T> = JSON.parse(response);
-          console.log("[GPT] Parsed response:", parsed);
+          const formData = new FormData();
+          formData.append("file", audioBlob, "audio.webm");
+          formData.append("model", "gpt-4o-mini-transcribe");
+          formData.append("response_format", "text");
 
-          onResult(parsed);
+          const response = await fetch(
+            "https://api.openai.com/v1/audio/transcriptions",
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${
+                  token || import.meta.env.VITE_OPENAI_API_KEY
+                }`,
+              },
+              body: formData,
+            }
+          );
+
+          const transcript = await response.text();
+          console.log("[Transcribe] Raw transcript:", transcript);
+
+          const prompt =
+            type === "patient"
+              ? getPatientTranscript(transcript)
+              : getMedicalRecordTranscript(transcript);
+          const gptResponse = await postGptRequest(prompt, token);
+
+          const parsed = JSON.parse(gptResponse);
+          console.log("[GPT] Parsed result:", parsed);
+          onParsed(parsed);
         } catch (err) {
-          console.error("[GPT] Error parsing GPT response:", err);
+          console.error("[Speech] Error:", err);
         } finally {
-          onComplete?.(); // <-- вызываем после завершения
+          setRecording(false);
+          onComplete();
+          resolve();
         }
-      }
-    };
+      };
 
-    recognition.onend = () => {
-      console.log("[Speech] Recognition ended");
-      if (shouldListenRef.current) {
-        console.log("[Speech] Restarting due to shouldListenRef");
-        recognition.start();
-      } else {
-        console.log("[Speech] Stopped listening");
-        setListening(false);
-      }
-    };
-
-    recognition.onerror = (e: SpeechRecognitionErrorEvent) => {
-      console.error("[Speech] Recognition error:", e.error);
-      if (e.error === "no-speech" && shouldListenRef.current) {
-        console.log("[Speech] Restarting after no-speech error");
-        recognition.start();
-      } else {
-        console.log("[Speech] Not restarting, disabling listening");
-        setListening(false);
-      }
-    };
-
-    return () => {
-      console.log("[Speech] Cleaning up recognition");
-      recognition.stop();
-      recognitionRef.current = null;
-    };
-  }, [token, onResult]);
-
-  const startListening = () => {
-    if (!listening && recognitionRef.current) {
-      console.log("[Speech] Starting listening");
-      shouldListenRef.current = true;
-      recognitionRef.current.start();
-      setListening(true);
-    }
-  };
-
-  const stopListening = () => {
-    if (recognitionRef.current) {
-      console.log("[Speech] Stopping listening");
-      shouldListenRef.current = false;
-      recognitionRef.current.stop();
-    }
-  };
+      mediaRecorder.stop();
+    });
 
   return {
-    startListening,
-    stopListening,
-    listening,
+    startRecording,
+    stopRecording,
+    recording,
   };
 };

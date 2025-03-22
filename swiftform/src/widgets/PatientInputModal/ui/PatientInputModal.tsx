@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
-import { useSpeechToForm } from "@/shared/hooks/useSpeechToForm";
+import { useAudioTranscription } from "@/shared/hooks/useSpeechToForm";
 
 export type TPatient = {
   name: string;
@@ -27,12 +27,7 @@ interface VoiceInputModalProps {
   token: string;
 }
 
-type FieldKey = keyof VoiceInputModalProps["data"];
-
-enum Phase {
-  Edit = "edit",
-  AiRecord = "ai-record",
-}
+type FieldKey = keyof TPatient;
 
 export function PatientInputModal({
   open,
@@ -41,46 +36,31 @@ export function PatientInputModal({
   setData,
   token,
 }: VoiceInputModalProps) {
-  const [phase, setPhase] = useState<Phase>(Phase.Edit);
-  const [proposedChanges, setProposedChanges] = useState<Partial<typeof data>>(
-    {}
-  );
+  const [proposedChanges, setProposedChanges] = useState<Partial<TPatient>>({});
   const [mergeConfirm, setMergeConfirm] = useState<FieldKey | null>(null);
 
-  const { startListening, stopListening } = useSpeechToForm(
+  const { startRecording, stopRecording, recording } = useAudioTranscription(
     token,
     (parsed) => {
       const cleaned = Object.fromEntries(
         Object.entries(parsed).filter(
           ([, value]) => (value as string).trim() !== ""
         )
-      ) as Partial<typeof data>;
+      ) as Partial<TPatient>;
 
       setProposedChanges((prev) => ({ ...prev, ...cleaned }));
-      setPhase(Phase.Edit);
     },
-    "patient",
-    () => setPhase(Phase.Edit)
+    () => {},
+    "patient"
   );
 
   useEffect(() => {
     if (!open) {
-      stopListening();
+      stopRecording();
       setProposedChanges({});
       setMergeConfirm(null);
-      setPhase(Phase.Edit);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
-
-  useEffect(() => {
-    if (phase === Phase.AiRecord) {
-      startListening();
-    } else {
-      stopListening();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase]);
+  }, [open, stopRecording]);
 
   const handleChange = (key: FieldKey, value: string) => {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -89,7 +69,6 @@ export function PatientInputModal({
   const handleAccept = (key: FieldKey) => {
     const current = data[key].toString().trim();
     const proposed = proposedChanges[key]?.trim() || "";
-
     const shouldMerge = !!current;
 
     if (shouldMerge && mergeConfirm !== key) {
@@ -112,21 +91,14 @@ export function PatientInputModal({
     if (mergeConfirm === key) {
       const proposed = proposedChanges[key]?.trim() || "";
       setData((prev) => ({ ...prev, [key]: proposed }));
-
-      setProposedChanges((prev) => {
-        const updated = { ...prev };
-        delete updated[key];
-        return updated;
-      });
-
-      setMergeConfirm(null);
-    } else {
-      setProposedChanges((prev) => {
-        const updated = { ...prev };
-        delete updated[key];
-        return updated;
-      });
     }
+
+    setProposedChanges((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+    setMergeConfirm(null);
   };
 
   const renderField = (key: FieldKey, label: string) => {
@@ -134,12 +106,14 @@ export function PatientInputModal({
     const showProposed =
       newValue !== undefined && (mergeConfirm === null || mergeConfirm === key);
 
+    const isTextarea = key === "other";
+
     return (
       <div className="space-y-1" key={key}>
         <label className="block text-sm font-medium text-muted-foreground">
           {label}
         </label>
-        {key === "other" ? (
+        {isTextarea ? (
           <Textarea
             value={data[key]}
             onChange={(e) => handleChange(key, e.target.value)}
@@ -182,10 +156,8 @@ export function PatientInputModal({
     );
   };
 
-  const handleStartAi = () => setPhase(Phase.AiRecord);
-
   const handleSave = () => {
-    stopListening();
+    stopRecording();
     onClose();
     setData(data);
   };
@@ -195,7 +167,6 @@ export function PatientInputModal({
       open={open}
       onOpenChange={(val) => {
         if (!val) handleSave();
-        stopListening();
       }}
       modal
     >
@@ -206,26 +177,20 @@ export function PatientInputModal({
           </DialogTitle>
         </DialogHeader>
 
-        {phase === Phase.Edit ? (
-          <>
-            <form className="space-y-4">
-              {renderField("name", "Name")}
-              {renderField("surname", "Surname")}
-              {renderField("phone", "Phone")}
-              {renderField("other", "Other Info")}
-            </form>
+        <form className="space-y-4">
+          {renderField("name", "Name")}
+          {renderField("surname", "Surname")}
+          {renderField("phone", "Phone")}
+          {renderField("other", "Other Info")}
+        </form>
 
-            <Button onClick={handleStartAi} className="mt-6 w-full">
-              🧑‍🧠 Start AI Voice Input
-            </Button>
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center min-h-[200px]">
-            <p className="text-sm text-muted-foreground">
-              🎤 Listening... Speak now
-            </p>
-          </div>
-        )}
+        <Button
+          className="w-full mt-4"
+          onMouseDown={startRecording}
+          onMouseUp={stopRecording}
+        >
+          🎤 {recording ? "Listening..." : "Hold to Speak"}
+        </Button>
 
         <Button onClick={handleSave} className="mt-6 w-full">
           Save
