@@ -1,5 +1,6 @@
 import { getAppointmentById } from "@/entities/Appointment";
 import { useUserStore } from "@/entities/User";
+import { PrintSummaryButton } from "@/features/PrintSummary";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,7 +9,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
-import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { Main } from "@/shared/ui/main";
 import { AppHeader } from "@/widgets/AppHeader";
@@ -108,7 +108,7 @@ function RouteComponent() {
               <Input id="notes" value={data.notes} className="col-span-3" />
             </div>
           </div>
-          <Button className="ml-auto">Print Summary</Button>
+          <PrintSummaryButton id={Number(id)} />
         </div>
       </Main>
     </div>

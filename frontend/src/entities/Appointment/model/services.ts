@@ -19,7 +19,7 @@ export async function getAppointments() {
 export async function getAppointmentById(id: number) {
   const response = await api.get(`/appointments/${id}`);
 
-  const result = AppointmentSchema.safeParse(response);
+  const result = AppointmentSchema.safeParse(response.data);
 
   if (result.error) {
     console.log(result.error);
