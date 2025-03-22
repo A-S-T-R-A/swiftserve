@@ -26,11 +26,13 @@ interface AppointmentPatchInput {
 }
 
 export async function appointmentRoutes(fastify: FastifyInstance) {
-    fastify.get('/', async () => {
-        return await prisma.appointment.findMany({
+    fastify.get('/', async (request, reply) => {
+        const appointments = await prisma.appointment.findMany({
             include: { patient: true },
             orderBy: { createdAt: 'desc' }
         });
+
+        return reply.code(200).send(appointments);
     });
 
     fastify.get('/patient/:patientId', async (request, reply) => {
@@ -44,10 +46,12 @@ export async function appointmentRoutes(fastify: FastifyInstance) {
             return reply.code(404).send({ error: 'Patient not found' });
         }
 
-        return await prisma.appointment.findMany({
+        const appointments = await prisma.appointment.findMany({
             where: { patientId: Number(patientId) },
             orderBy: { createdAt: 'desc' }
         });
+
+        return reply.code(200).send(appointments);
     });
 
     fastify.get('/:id', async (request, reply) => {
@@ -62,7 +66,7 @@ export async function appointmentRoutes(fastify: FastifyInstance) {
             return reply.code(404).send({ error: 'Appointment not found' });
         }
 
-        return appointment;
+        return reply.code(200).send(appointment);
     });
 
     fastify.get('/:id/pdf', async (request, reply) => {
@@ -123,8 +127,7 @@ export async function appointmentRoutes(fastify: FastifyInstance) {
                 data: appointmentData,
                 include: { patient: true }
             });
-
-            return updatedAppointment;
+            return reply.code(200).send(updatedAppointment);
         } catch (error) {
             return reply.code(404).send({ error: 'Appointment not found' });
         }
@@ -138,7 +141,7 @@ export async function appointmentRoutes(fastify: FastifyInstance) {
                 where: { id: Number(id) }
             });
 
-            return reply.code(204).send();
+            return reply.code(200).send();
         } catch (error) {
             return reply.code(404).send({ error: 'Appointment not found or cannot be deleted' });
         }
