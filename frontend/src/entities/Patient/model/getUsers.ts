@@ -1,4 +1,4 @@
-import { UserSchema } from "@/entities/User";
+import { UserSchema } from "@/entities/Patient";
 import { api } from "@/shared/api/api";
 import { z } from "zod";
 

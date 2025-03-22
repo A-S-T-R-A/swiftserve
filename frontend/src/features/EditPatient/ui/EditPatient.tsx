@@ -1,4 +1,4 @@
-import { useUserStore } from "@/entities/User";
+import { useUserStore } from "@/entities/Patient";
 import {
   Dialog,
   DialogContent,

@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
-import { useUserStore } from "@/entities/User";
+import { useUserStore } from "@/entities/Patient";
 import { AppointmentForm } from "@/widgets/AppointmentForm";
 
 export const Route = createFileRoute("/patients/$id/appointments/create")({

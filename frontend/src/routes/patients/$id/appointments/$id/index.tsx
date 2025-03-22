@@ -1,5 +1,5 @@
 import { getAppointmentById } from "@/entities/Appointment";
-import { useUserStore } from "@/entities/User";
+import { useUserStore } from "@/entities/Patient";
 import { PrintSummaryButton } from "@/features/PrintSummary";
 import {
   Breadcrumb,

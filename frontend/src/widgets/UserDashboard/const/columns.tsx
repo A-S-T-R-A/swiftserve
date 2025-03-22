@@ -1,8 +1,8 @@
 import type { ColumnDef } from "@tanstack/table-core";
 import { PatientsActions } from "../ui/PatientsActions";
-import type { TUser } from "@/entities/User";
+import type { TPatient } from "@/entities/Patient";
 
-export const columns: ColumnDef<TUser>[] = [
+export const columns: ColumnDef<TPatient>[] = [
   {
     accessorKey: "name",
     header: "Name",

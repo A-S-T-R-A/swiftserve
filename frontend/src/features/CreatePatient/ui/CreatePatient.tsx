@@ -1,23 +1,29 @@
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/shared/components/ui/dialog";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { PlusIcon } from "lucide-react";
 import { postCreatePatient } from "../model/services";
-import type { FormEvent } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { ModalField } from "./ModalField";
+import { defaultPatient } from "../const";
+
+enum Phase {
+  Edit = "edit",
+  AiRecord = "ai-record",
+}
 
 export function CreatePatient() {
-  const navigate = useNavigate();
+  const [data, setData] = useState(defaultPatient);
+  const [proposedChanges, setProposedChanges] =
+    useState<Partial<typeof defaultPatient>>(defaultPatient);
+  const [isOpen, setIsOpen] = useState(false);
+  const [phase, setPhase] = useState<Phase>(Phase.Edit);
+
   const queryClient = useQueryClient();
 
   const { mutate } = useMutation({
@@ -25,88 +31,147 @@ export function CreatePatient() {
     mutationFn: postCreatePatient,
   });
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-
-    // const formData = new FormData(e.currentTarget);
-
-    mutate(
-      {
-        name: new Date().getTime().toString(), //formData.get("name") as string,
-        surname: "test321", // formData.get("surname") as string,
-        phone: "123", //formData.get("phone") as string,
-        other: "32131", //formData.get("other-info") as string,
+  function onSubmit() {
+    mutate(data, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["usersData"] });
+        setIsOpen(false);
       },
-      {
-        onSuccess: () => {
-          queryClient.invalidateQueries({ queryKey: ["usersData"] });
-          navigate({ to: "/" });
-        },
+    });
+  }
+
+  function onClose() {
+    setIsOpen(false);
+    setData(defaultPatient);
+    setProposedChanges(defaultPatient);
+  }
+
+  useEffect(() => {
+    if (!isOpen) {
+      setProposedChanges(defaultPatient);
+      setPhase(Phase.Edit);
+    }
+  }, [isOpen]);
+
+  const handleChange = (key: keyof typeof data, value: string) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const handleAccept = (key: keyof typeof data) => {
+    setData((prev) => ({
+      ...prev,
+      [key]: proposedChanges[key],
+    }));
+
+    setProposedChanges((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  };
+
+  const handleDecline = (key: keyof typeof data) => {
+    setProposedChanges((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  };
+
+  const handleStartAi = () => setPhase(Phase.AiRecord);
+
+  function mockGenerateDiff() {
+    const mock: Partial<typeof defaultPatient> = {
+      name: "Another",
+      phone: new Date().getTime().toString(),
+    };
+
+    Object.keys(mock).forEach((k) => {
+      const key = k as keyof typeof defaultPatient;
+      if (data[key] === "") {
+        setData((prev) => ({ ...prev, [key]: mock[key] }));
+      } else {
+        setProposedChanges((prev) => ({ ...prev, [key]: mock[key] }));
       }
-    );
+    });
   }
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button className="cursor-pointer">
-          <PlusIcon />
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Create Patient</DialogTitle>
-        </DialogHeader>
-        <form
-          id="create-patient-form"
-          onSubmit={onSubmit}
-          className="grid gap-4 py-4"
-        >
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" name="name" className="col-span-3" required />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="surname" className="text-right">
-              Surname
-            </Label>
-            <Input id="surname" name="surname" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="phone" className="text-right">
-              Phone
-            </Label>
-            <Input id="phone" name="phone" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="other-info" className="text-right">
-              Other info
-            </Label>
-            <Textarea
-              id="other-info"
-              name="other-info"
-              className="col-span-3"
-            />
-          </div>
-        </form>
-        <DialogFooter>
-          <Button
-            className="w-fit mr-auto cursor-pointer"
-            variant="cosmicOutline"
-          >
-            AI
+    <>
+      <Button onClick={() => setIsOpen(true)} className="cursor-pointer">
+        <PlusIcon />
+      </Button>
+
+      <Dialog
+        open={isOpen}
+        onOpenChange={(v) => (v ? setIsOpen(true) : onClose())}
+        modal
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between">
+              Create Patient
+            </DialogTitle>
+          </DialogHeader>
+
+          <Button onClick={mockGenerateDiff} className="cursor-pointer">
+            Generate diff
           </Button>
-          <Button
-            className="cursor-pointer"
-            type="submit"
-            form="create-patient-form"
-          >
+
+          {phase === Phase.Edit ? (
+            <>
+              <div className="space-y-4">
+                <ModalField
+                  label="Name"
+                  value={data.name}
+                  onChange={(e) => handleChange("name", e.target.value)}
+                  proposedValue={proposedChanges.name}
+                  onAccept={() => handleAccept("name")}
+                  onDecline={() => handleDecline("name")}
+                />
+                <ModalField
+                  label="Surname"
+                  value={data.surname}
+                  onChange={(e) => handleChange("surname", e.target.value)}
+                  proposedValue={proposedChanges.surname}
+                  onAccept={() => handleAccept("surname")}
+                  onDecline={() => handleDecline("surname")}
+                />
+                <ModalField
+                  key="phone"
+                  label="Phone"
+                  value={data.phone}
+                  onChange={(e) => handleChange("phone", e.target.value)}
+                  proposedValue={proposedChanges.phone}
+                  onAccept={() => handleAccept("phone")}
+                  onDecline={() => handleDecline("phone")}
+                />
+                <ModalField
+                  key="other"
+                  label="Other Info"
+                  value={data.other}
+                  onChange={(e) => handleChange("other", e.target.value)}
+                  proposedValue={proposedChanges.other}
+                  onAccept={() => handleAccept("other")}
+                  onDecline={() => handleDecline("other")}
+                />
+              </div>
+
+              <Button onClick={handleStartAi} className="mt-6 w-full">
+                🧑‍🧠 Start AI Voice Input
+              </Button>
+            </>
+          ) : (
+            <div className="flex flex-col items-center justify-center min-h-[200px]">
+              <p className="text-sm text-muted-foreground">
+                🎤 Listening... Speak now
+              </p>
+            </div>
+          )}
+
+          <Button onClick={onSubmit} className="mt-6 w-full">
             Save
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

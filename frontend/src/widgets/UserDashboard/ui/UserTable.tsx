@@ -20,12 +20,12 @@ import {
 } from "@/shared/ui/table";
 import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import type { TUser } from "@/entities/User";
+import type { TPatient } from "@/entities/Patient";
 // import { Input } from "@/shared/ui/input";
 
 interface DataTableProps<TValue> {
-  columns: ColumnDef<TUser, TValue>[];
-  data: TUser[];
+  columns: ColumnDef<TPatient, TValue>[];
+  data: TPatient[];
 }
 
 export function UserTable<TValue>({ columns, data }: DataTableProps<TValue>) {

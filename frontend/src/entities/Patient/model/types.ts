@@ -8,4 +8,4 @@ export const UserSchema = z.object({
   other: z.string(),
 });
 
-export type TUser = z.infer<typeof UserSchema>;
+export type TPatient = z.infer<typeof UserSchema>;
