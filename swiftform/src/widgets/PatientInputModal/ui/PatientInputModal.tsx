@@ -8,27 +8,22 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useSpeechToForm } from "@/shared/hooks/useSpeechToForm";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
+import { useSpeechToForm } from "@/shared/hooks/useSpeechToForm";
+
+export type TPatient = {
+  name: string;
+  surname: string;
+  phone: string;
+  other: string;
+};
 
 interface VoiceInputModalProps {
   open: boolean;
   onClose: () => void;
-  data: {
-    name: string;
-    surname: string;
-    phone: string;
-    other: string;
-  };
-  setData: React.Dispatch<
-    React.SetStateAction<{
-      name: string;
-      surname: string;
-      phone: string;
-      other: string;
-    }>
-  >;
+  data: TPatient;
+  setData: React.Dispatch<React.SetStateAction<TPatient>>;
   token: string;
 }
 
@@ -37,12 +32,6 @@ type FieldKey = keyof VoiceInputModalProps["data"];
 enum Phase {
   Edit = "edit",
   AiRecord = "ai-record",
-}
-
-enum ConfirmStatus {
-  Accepted = "accepted",
-  Declined = "declined",
-  MergeConfirm = "merge-confirm",
 }
 
 export function PatientInputModal({
@@ -56,25 +45,30 @@ export function PatientInputModal({
   const [proposedChanges, setProposedChanges] = useState<Partial<typeof data>>(
     {}
   );
-  const [confirmed, setConfirmed] = useState<
-    Partial<Record<FieldKey, ConfirmStatus>>
-  >({});
+  const [mergeConfirm, setMergeConfirm] = useState<FieldKey | null>(null);
 
   const { startListening, stopListening } = useSpeechToForm(
     token,
-    (results) => {
-      setProposedChanges(results);
+    (parsed) => {
+      const cleaned = Object.fromEntries(
+        Object.entries(parsed).filter(
+          ([, value]) => (value as string).trim() !== ""
+        )
+      ) as Partial<typeof data>;
+
+      setProposedChanges((prev) => ({ ...prev, ...cleaned }));
       setPhase(Phase.Edit);
     },
-    "patient"
+    "patient",
+    () => setPhase(Phase.Edit)
   );
 
   useEffect(() => {
     if (!open) {
       stopListening();
-      setPhase(Phase.Edit);
       setProposedChanges({});
-      setConfirmed({});
+      setMergeConfirm(null);
+      setPhase(Phase.Edit);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -93,32 +87,52 @@ export function PatientInputModal({
   };
 
   const handleAccept = (key: FieldKey) => {
-    if (confirmed[key] === ConfirmStatus.MergeConfirm) {
-      setData((prev) => ({
-        ...prev,
-        [key]: `${prev[key]} ${proposedChanges[key]}`.trim(),
-      }));
-    } else {
-      setData((prev) => ({ ...prev, [key]: proposedChanges[key] || "" }));
+    const current = data[key].toString().trim();
+    const proposed = proposedChanges[key]?.trim() || "";
+
+    const shouldMerge = !!current;
+
+    if (shouldMerge && mergeConfirm !== key) {
+      setMergeConfirm(key);
+      return;
     }
-    setConfirmed((prev) => ({ ...prev, [key]: ConfirmStatus.Accepted }));
+
+    const finalValue = shouldMerge ? `${current} ${proposed}`.trim() : proposed;
+
+    setData((prev) => ({ ...prev, [key]: finalValue }));
+    setProposedChanges((prev) => {
+      const updated = { ...prev };
+      delete updated[key];
+      return updated;
+    });
+    setMergeConfirm(null);
   };
 
   const handleDecline = (key: FieldKey) => {
-    if (confirmed[key] === ConfirmStatus.MergeConfirm) {
-      setConfirmed((prev) => ({ ...prev, [key]: ConfirmStatus.Declined }));
+    if (mergeConfirm === key) {
+      const proposed = proposedChanges[key]?.trim() || "";
+      setData((prev) => ({ ...prev, [key]: proposed }));
+
+      setProposedChanges((prev) => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
+
+      setMergeConfirm(null);
     } else {
-      setConfirmed((prev) => ({ ...prev, [key]: ConfirmStatus.MergeConfirm }));
+      setProposedChanges((prev) => {
+        const updated = { ...prev };
+        delete updated[key];
+        return updated;
+      });
     }
   };
 
   const renderField = (key: FieldKey, label: string) => {
     const newValue = proposedChanges[key];
-    const status = confirmed[key];
     const showProposed =
-      newValue &&
-      status !== ConfirmStatus.Accepted &&
-      status !== ConfirmStatus.Declined;
+      newValue !== undefined && (mergeConfirm === null || mergeConfirm === key);
 
     return (
       <div className="space-y-1" key={key}>
@@ -137,11 +151,11 @@ export function PatientInputModal({
           />
         )}
 
-        {showProposed && (
+        {newValue && showProposed && (
           <div className="flex items-center justify-between mt-1 text-sm text-muted-foreground bg-muted p-2 rounded-md">
             <div className="flex-1 italic text-muted-foreground">
-              {status === ConfirmStatus.MergeConfirm
-                ? "Merge with AI?"
+              {mergeConfirm === key
+                ? "Merge with AI suggestion?"
                 : `AI: ${newValue}`}
             </div>
             <div className="flex gap-1 ml-2">
@@ -168,13 +182,12 @@ export function PatientInputModal({
     );
   };
 
-  const handleStartAi = () => {
-    setPhase(Phase.AiRecord);
-  };
+  const handleStartAi = () => setPhase(Phase.AiRecord);
 
   const handleSave = () => {
     stopListening();
     onClose();
+    setData(data);
   };
 
   return (
@@ -182,6 +195,7 @@ export function PatientInputModal({
       open={open}
       onOpenChange={(val) => {
         if (!val) handleSave();
+        stopListening();
       }}
       modal
     >
@@ -202,13 +216,13 @@ export function PatientInputModal({
             </form>
 
             <Button onClick={handleStartAi} className="mt-6 w-full">
-              🧠 Start AI Voice Input
+              🧑‍🧠 Start AI Voice Input
             </Button>
           </>
         ) : (
           <div className="flex flex-col items-center justify-center min-h-[200px]">
             <p className="text-sm text-muted-foreground">
-              🎙️ Listening... Speak now
+              🎤 Listening... Speak now
             </p>
           </div>
         )}

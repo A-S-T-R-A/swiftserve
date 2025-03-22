@@ -2,13 +2,13 @@ import styles from "./EditableRow.module.scss";
 
 interface Props {
   label: string;
-  defaultValue: string;
+  value: string;
 }
 
-export const EditableRow = ({ label, defaultValue }: Props) => {
+export const EditableRow = ({ label, value }: Props) => {
   return (
     <p className={styles.row}>
-      {label}: <span contentEditable>{defaultValue}</span>
+      {label}: <span contentEditable>{value}</span>
     </p>
   );
 };

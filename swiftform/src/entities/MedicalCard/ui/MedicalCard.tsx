@@ -19,6 +19,8 @@ export const MedicalCard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [patientModalOpen, setPatientModalOpen] = useState(false);
 
+  console.log("patientData", patientData, "Data", data);
+
   return (
     <div className={styles.wrapper} id="pdfContainer">
       <div className={styles.buttonContainer}>
@@ -40,9 +42,8 @@ export const MedicalCard = () => {
       <VoiceInputModal
         open={modalOpen}
         onClose={() => setModalOpen(false)}
-        data={data}
-        setData={setData}
         token={token}
+        onSave={setData}
       />
       <PatientInputModal
         open={patientModalOpen}
@@ -55,11 +56,7 @@ export const MedicalCard = () => {
         <div className={styles.container}>
           <div className={styles.leftColumn}>
             {medicalCardStructure.leftColumn.map(({ label, key }) => (
-              <EditableRow
-                key={key}
-                label={label}
-                defaultValue={data[key as keyof typeof data] || ""}
-              />
+              <EditableRow key={key} label={label} value={patientData?.[key]} />
             ))}
           </div>
 
@@ -68,14 +65,14 @@ export const MedicalCard = () => {
               field.type === "block" ? (
                 <EditableBlock
                   key={field.key}
-                  title={field.title || ""}
-                  placeholder={data[field.key as keyof typeof data] || ""}
+                  title={field.label || ""}
+                  value={data[field.key]}
                 />
               ) : (
                 <EditableRow
                   key={field.key}
                   label={field.label || ""}
-                  defaultValue={data[field.key as keyof typeof data] || ""}
+                  value={data[field.key]}
                 />
               )
             )}
