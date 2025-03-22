@@ -16,10 +16,16 @@ export async function gptRoutes(fastify: FastifyInstance) {
             console.log("Part", part);
             if (part.type === 'file') {
                 filePart = part;
+                console.log("File part done");
             } else {
+                console.log("Field", part.fieldname);
+                console.log("Value", part.value);
+
                 fields[part.fieldname] = part.value as string;
+                console.log("Setting field done")
             }
         }
+        console.log("Validating fields");
 
         if (!filePart || !fields.model || !fields.response_format) {
             return reply.status(400).send({ error: 'Missing required fields' });
