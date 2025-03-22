@@ -17,10 +17,12 @@ interface PatientPatchInput {
 
 
 export async function patientRoutes(fastify: FastifyInstance) {
-    fastify.get('/', async () => {
-        return await prisma.patient.findMany({
+    fastify.get('/', async (request, reply) => {
+        const patients = await prisma.patient.findMany({
             orderBy: { createdAt: 'desc' }
         });
+
+        return reply.code(200).send(patients);
     });
 
     fastify.get('/:id', async (request, reply) => {
@@ -35,7 +37,7 @@ export async function patientRoutes(fastify: FastifyInstance) {
             return reply.code(404).send({ error: 'Patient not found' });
         }
 
-        return patient;
+        return reply.code(200).send(patient);
     });
 
     fastify.post('/', async (request, reply) => {
@@ -58,7 +60,7 @@ export async function patientRoutes(fastify: FastifyInstance) {
                 data: patientData
             });
 
-            return updatedPatient;
+            return reply.code(200).send(updatedPatient);
         } catch (error) {
             return reply.code(404).send({ error: 'Patient not found' });
         }
@@ -72,7 +74,7 @@ export async function patientRoutes(fastify: FastifyInstance) {
                 where: { id: Number(id) }
             });
 
-            return reply.code(204).send();
+            return reply.code(200).send();
         } catch (error) {
             return reply.code(404).send({ error: 'Patient not found or cannot be deleted' });
         }
