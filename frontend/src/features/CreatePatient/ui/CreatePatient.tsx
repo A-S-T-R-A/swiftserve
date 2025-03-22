@@ -12,13 +12,6 @@ import { useEffect, useState } from "react";
 import { ModalField } from "./ModalField";
 import { defaultPatient } from "../const";
 
-export type TPatient = {
-  name: string;
-  surname: string;
-  phone: string;
-  other: string;
-};
-
 enum Phase {
   Edit = "edit",
   AiRecord = "ai-record",
@@ -27,10 +20,9 @@ enum Phase {
 export function CreatePatient() {
   const [data, setData] = useState(defaultPatient);
   const [proposedChanges, setProposedChanges] =
-    useState<Partial<TPatient>>(defaultPatient);
+    useState<Partial<typeof defaultPatient>>(defaultPatient);
   const [isOpen, setIsOpen] = useState(false);
   const [phase, setPhase] = useState<Phase>(Phase.Edit);
-  const [mergeConfirm, setMergeConfirm] = useState<any | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -57,7 +49,6 @@ export function CreatePatient() {
   useEffect(() => {
     if (!isOpen) {
       setProposedChanges(defaultPatient);
-      setMergeConfirm(null);
       setPhase(Phase.Edit);
     }
   }, [isOpen]);
@@ -88,13 +79,13 @@ export function CreatePatient() {
   const handleStartAi = () => setPhase(Phase.AiRecord);
 
   function mockGenerateDiff() {
-    const mock: Partial<TPatient> = {
+    const mock: Partial<typeof defaultPatient> = {
       name: "Another",
       phone: new Date().getTime().toString(),
     };
 
     Object.keys(mock).forEach((k) => {
-      const key = k as keyof typeof data;
+      const key = k as keyof typeof defaultPatient;
       if (data[key] === "") {
         setData((prev) => ({ ...prev, [key]: mock[key] }));
       } else {
