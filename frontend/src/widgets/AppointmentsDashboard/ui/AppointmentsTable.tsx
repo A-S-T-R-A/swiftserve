@@ -19,16 +19,19 @@ import {
   TableRow,
 } from "@/shared/ui/table";
 import { useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
-import type { TUser } from "@/entities/User";
-// import { Input } from "@/shared/ui/input";
+import { useNavigate, useParams } from "@tanstack/react-router";
+import type { TAppointment } from "@/entities/Appointment";
 
 interface DataTableProps<TValue> {
-  columns: ColumnDef<TUser, TValue>[];
-  data: TUser[];
+  columns: ColumnDef<TAppointment, TValue>[];
+  data: TAppointment[];
 }
 
-export function UserTable<TValue>({ columns, data }: DataTableProps<TValue>) {
+export function AppointmentsTable<TValue>({
+  columns,
+  data,
+}: DataTableProps<TValue>) {
+  const { id: patientId } = useParams({ from: "/patients/$id/appointments/" });
   const navigate = useNavigate();
 
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -51,15 +54,7 @@ export function UserTable<TValue>({ columns, data }: DataTableProps<TValue>) {
 
   return (
     <>
-      <div className="flex items-center py-4">
-        {/* <Input
-          type="text"
-          value={filtering}
-          onChange={(e) => setFiltering(e.target.value)}
-          placeholder="Search by name or email..."
-          className="max-w-sm"
-        /> */}
-      </div>
+      <div className="flex items-center py-4"></div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -86,18 +81,15 @@ export function UserTable<TValue>({ columns, data }: DataTableProps<TValue>) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer"
+                  className="cursor-pointer h-[50px]"
+                  onClick={() =>
+                    navigate({
+                      to: `/patients/${patientId}/appointments/${row.original.id}`,
+                    })
+                  }
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      onClick={() => {
-                        if (cell.column.id === "actions") return;
-                        navigate({
-                          to: `/patients/${row.original.id}/appointments`,
-                        });
-                      }}
-                    >
+                    <TableCell key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
