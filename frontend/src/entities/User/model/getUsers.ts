@@ -5,7 +5,7 @@ import { z } from "zod";
 const ResponseSchema = z.array(UserSchema);
 
 export async function getUsers() {
-  const response = await api.get("/users");
+  const response = await api.get("/patients");
   const updatedData: TUser[] = response.data.map((user: any) => ({
     id: user.id,
     name: user.name,

@@ -6,9 +6,10 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/shared/ui/sidebar";
-import { NavUser, Logo } from "@/entities/Self";
+import { NavUser } from "@/entities/Self";
 import { mockSidebarData } from "../const/mock";
 import { NavGroup } from "./NavGroup";
+import { Logo } from "@/widgets/Logo";
 
 export function AppSidebar({ ...props }: ComponentProps<typeof Sidebar>) {
   return (
