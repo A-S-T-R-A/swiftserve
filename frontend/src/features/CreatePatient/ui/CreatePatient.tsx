@@ -97,7 +97,7 @@ export function CreatePatient() {
         modal
       >
         <DialogContent className="max-w-lg">
-          <DialogHeader className="flex-row items-center justify-between pr-10">
+          <DialogHeader className="flex-row items-center justify-between pr-3">
             <DialogTitle className="flex items-center justify-between">
               Create Patient
             </DialogTitle>
@@ -105,10 +105,14 @@ export function CreatePatient() {
               onMouseDown={startRecording}
               onMouseUp={stopRecording}
               onMouseLeave={stopRecording}
-              variant={recording ? "secondary" : "default"}
-              className="cursor-pointer"
+              variant="cosmicOutline"
+              className="cursor-pointer w-[140px]"
             >
-              {recording ? <Loader className="animate-spin" /> : "AI"}
+              {recording ? (
+                <Loader className="animate-spin" />
+              ) : (
+                "Populate with AI"
+              )}
             </Button>
           </DialogHeader>
           <>

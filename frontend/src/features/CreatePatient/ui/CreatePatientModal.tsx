@@ -118,10 +118,14 @@ export function CreatePatientModal({
             onMouseDown={startRecording}
             onMouseUp={stopRecording}
             onMouseLeave={stopRecording}
-            variant={recording ? "secondary" : "default"}
-            className="cursor-pointer"
+            variant="cosmicOutline"
+            className="cursor-pointer w-[140px]"
           >
-            {recording ? <Loader className="animate-spin" /> : "AI"}
+            {recording ? (
+              <Loader className="animate-spin" />
+            ) : (
+              "Populate with AI"
+            )}
           </Button>
         </DialogHeader>
         <>

@@ -131,10 +131,10 @@ export function AppointmentForm() {
           onMouseLeave={() => {
             stopRecording();
           }}
-          variant={recording ? "secondary" : "cosmicOutline"}
-          className="cursor-pointer w-fit"
+          variant="cosmicOutline"
+          className="cursor-pointer w-[140px]"
         >
-          {recording ? <Loader className="animate-spin" /> : "AI"}
+          {recording ? <Loader className="animate-spin" /> : "Populate with AI"}
         </Button>
       </div>
 
