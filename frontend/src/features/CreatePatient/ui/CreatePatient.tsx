@@ -6,23 +6,39 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { PlusIcon } from "lucide-react";
+import { Loader, PlusIcon } from "lucide-react";
 import { postCreatePatient } from "../model/services";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ModalField } from "./ModalField";
 import { defaultPatient } from "../const";
-
-enum Phase {
-  Edit = "edit",
-  AiRecord = "ai-record",
-}
+import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
 
 export function CreatePatient() {
   const [data, setData] = useState(defaultPatient);
   const [proposedChanges, setProposedChanges] =
     useState<Partial<typeof defaultPatient>>(defaultPatient);
   const [isOpen, setIsOpen] = useState(false);
-  const [phase, setPhase] = useState<Phase>(Phase.Edit);
+
+  const { startRecording, stopRecording, recording } = useAudioTranscription(
+    import.meta.env.VITE_OPENAI_API_KEY,
+    (parsed) => {
+      const autoAccepted: Partial<typeof defaultPatient> = {};
+      const proposed: Partial<typeof defaultPatient> = {};
+
+      for (const key in parsed) {
+        if (!data[key as keyof typeof data]) {
+          autoAccepted[key as keyof typeof data] = parsed[key];
+        } else {
+          proposed[key as keyof typeof data] = parsed[key];
+        }
+      }
+
+      setData((d) => ({ ...d, ...autoAccepted }));
+      setProposedChanges(proposed);
+    },
+    () => null,
+    "patient"
+  );
 
   const queryClient = useQueryClient();
 
@@ -43,15 +59,8 @@ export function CreatePatient() {
   function onClose() {
     setIsOpen(false);
     setData(defaultPatient);
-    setProposedChanges(defaultPatient);
+    setProposedChanges({});
   }
-
-  useEffect(() => {
-    if (!isOpen) {
-      setProposedChanges(defaultPatient);
-      setPhase(Phase.Edit);
-    }
-  }, [isOpen]);
 
   const handleChange = (key: keyof typeof data, value: string) => {
     setData((prev) => ({ ...prev, [key]: value }));
@@ -76,24 +85,6 @@ export function CreatePatient() {
     }));
   };
 
-  const handleStartAi = () => setPhase(Phase.AiRecord);
-
-  function mockGenerateDiff() {
-    const mock: Partial<typeof defaultPatient> = {
-      name: "Another",
-      phone: new Date().getTime().toString(),
-    };
-
-    Object.keys(mock).forEach((k) => {
-      const key = k as keyof typeof defaultPatient;
-      if (data[key] === "") {
-        setData((prev) => ({ ...prev, [key]: mock[key] }));
-      } else {
-        setProposedChanges((prev) => ({ ...prev, [key]: mock[key] }));
-      }
-    });
-  }
-
   return (
     <>
       <Button onClick={() => setIsOpen(true)} className="cursor-pointer">
@@ -106,19 +97,23 @@ export function CreatePatient() {
         modal
       >
         <DialogContent className="max-w-lg">
-          <DialogHeader>
+          <DialogHeader className="flex-row items-center justify-between pr-10">
             <DialogTitle className="flex items-center justify-between">
               Create Patient
             </DialogTitle>
+            <Button
+              onMouseDown={startRecording}
+              onMouseUp={stopRecording}
+              onMouseLeave={stopRecording}
+              variant={recording ? "secondary" : "default"}
+              className="cursor-pointer"
+            >
+              {recording ? <Loader className="animate-spin" /> : "AI"}
+            </Button>
           </DialogHeader>
-
-          <Button onClick={mockGenerateDiff} className="cursor-pointer">
-            Generate diff
-          </Button>
-
-          {phase === Phase.Edit ? (
-            <>
-              <div className="space-y-4">
+          <>
+            <div className="space-y-4">
+              <div className="flex gap-4 w-full">
                 <ModalField
                   label="Name"
                   value={data.name}
@@ -135,39 +130,30 @@ export function CreatePatient() {
                   onAccept={() => handleAccept("surname")}
                   onDecline={() => handleDecline("surname")}
                 />
-                <ModalField
-                  key="phone"
-                  label="Phone"
-                  value={data.phone}
-                  onChange={(e) => handleChange("phone", e.target.value)}
-                  proposedValue={proposedChanges.phone}
-                  onAccept={() => handleAccept("phone")}
-                  onDecline={() => handleDecline("phone")}
-                />
-                <ModalField
-                  key="other"
-                  label="Other Info"
-                  value={data.other}
-                  onChange={(e) => handleChange("other", e.target.value)}
-                  proposedValue={proposedChanges.other}
-                  onAccept={() => handleAccept("other")}
-                  onDecline={() => handleDecline("other")}
-                />
               </div>
+              <ModalField
+                key="phone"
+                label="Phone"
+                value={data.phone}
+                onChange={(e) => handleChange("phone", e.target.value)}
+                proposedValue={proposedChanges.phone}
+                onAccept={() => handleAccept("phone")}
+                onDecline={() => handleDecline("phone")}
+              />
 
-              <Button onClick={handleStartAi} className="mt-6 w-full">
-                🧑‍🧠 Start AI Voice Input
-              </Button>
-            </>
-          ) : (
-            <div className="flex flex-col items-center justify-center min-h-[200px]">
-              <p className="text-sm text-muted-foreground">
-                🎤 Listening... Speak now
-              </p>
+              <ModalField
+                key="other"
+                label="Other Info"
+                variant="textarea"
+                value={data.other}
+                onChange={(e) => handleChange("other", e.target.value)}
+                proposedValue={proposedChanges.other}
+                onAccept={() => handleAccept("other")}
+                onDecline={() => handleDecline("other")}
+              />
             </div>
-          )}
-
-          <Button onClick={onSubmit} className="mt-6 w-full">
+          </>
+          <Button onClick={onSubmit} className="w-full h-12 cursor-pointer">
             Save
           </Button>
         </DialogContent>

@@ -1,12 +1,13 @@
 import { usePatientStore } from "@/entities/Patient";
-import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
-import { Label } from "@/shared/components/ui/label";
-import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/ui/button";
-import { Input } from "@/shared/ui/input";
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate, useParams } from "@tanstack/react-router";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
+import { Loader } from "lucide-react";
+import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
+import { ModalField } from "@/features/CreatePatient/ui/ModalField";
+import { postCreateAppointment } from "../model/services/services";
+import { defaultAppointment } from "../const";
 
 export function AppointmentForm() {
   const { id } = useParams({
@@ -14,40 +15,91 @@ export function AppointmentForm() {
   });
   const navigate = useNavigate();
   const { getSelectedPatient } = usePatientStore();
-
   const patient = getSelectedPatient(Number(id));
+
+  const [data, setData] = useState(defaultAppointment);
+  const [proposedChanges, setProposedChanges] = useState<
+    Partial<typeof defaultAppointment>
+  >({});
+  const [recording, setRecording] = useState(false);
+
+  const {
+    startRecording,
+    stopRecording,
+    recording: isRecording,
+  } = useAudioTranscription(
+    import.meta.env.VITE_OPENAI_API_KEY,
+    (parsed) => {
+      const autoAccepted: Partial<typeof defaultAppointment> = {};
+      const proposed: Partial<typeof defaultAppointment> = {};
+
+      for (const key in parsed) {
+        const typedKey = key as keyof typeof defaultAppointment;
+        if (!data[typedKey]) {
+          autoAccepted[typedKey] = parsed[typedKey];
+        } else {
+          proposed[typedKey] = parsed[typedKey];
+        }
+      }
+
+      setData((prev) => ({ ...prev, ...autoAccepted }));
+      setProposedChanges((prev) => ({ ...prev, ...proposed }));
+    },
+    () => setRecording(false),
+    "record"
+  );
 
   const { mutate } = useMutation({
     mutationKey: ["createAppointment"],
     mutationFn: postCreateAppointment,
   });
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const handleChange = (key: keyof typeof data, value: string) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+  };
 
-    // const formData = new FormData(e.currentTarget);
+  const handleAccept = (key: keyof typeof data) => {
+    setData((prev) => ({
+      ...prev,
+      [key]: proposedChanges[key] || "",
+    }));
+    setProposedChanges((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  };
+
+  const handleDecline = (key: keyof typeof data) => {
+    setProposedChanges((prev) => ({
+      ...prev,
+      [key]: "",
+    }));
+  };
+
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
     mutate(
       {
         patientId: Number(id),
-        reason: "reason", // formData.get("reason") as string,
-        diagnosis: "diagnosis", // formData.get("diagnosis") as string,
-        prescription: "prescription", // formData.get("prescription") as string,
-        bp: 21, //Number(formData.get("bp")),
-        heartRate: 11, // Number(formData.get("heartRate")),
-        weight: 22, // Number(formData.get("weight")),
-        height: 22, // Number(formData.get("height")),
-        notes: "321", // formData.get("notes") as string,
+        reason: data.reason,
+        diagnosis: data.diagnosis,
+        prescription: data.prescription,
+        bp: Number(data.bp),
+        heartRate: Number(data.heartRate),
+        weight: Number(data.weight),
+        height: Number(data.height),
+        notes: data.notes,
       },
       {
         onSuccess: (data) => {
           navigate({
-            to: `/patients/${data.patientId}/appointments/${data.id}/`,
+            to: `/patients/${id}/appointments/${data.id}/`,
           });
         },
       }
     );
-  }
+  };
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col">
@@ -55,59 +107,91 @@ export function AppointmentForm() {
         <h2 className="text-2xl font-semibold tracking-tight">
           {patient?.name} create an appointment
         </h2>
-        <Button variant="cosmicOutline" className="cursor-pointer w-fit">
-          AI
+        <Button
+          type="button"
+          onMouseDown={() => {
+            setRecording(true);
+            startRecording();
+          }}
+          onMouseUp={() => {
+            stopRecording();
+          }}
+          onMouseLeave={() => {
+            stopRecording();
+          }}
+          variant={recording ? "secondary" : "cosmicOutline"}
+          className="cursor-pointer w-fit"
+        >
+          {recording ? <Loader className="animate-spin" /> : "AI"}
         </Button>
       </div>
+
       <div className="grid gap-4 py-4">
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="reason" className="text-right">
-            Reason
-          </Label>
-          <Input id="reason" name="reason" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="diagnosis" className="text-right">
-            Diagnosis
-          </Label>
-          <Input id="diagnosis" name="diagnosis" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="prescription" className="text-right">
-            Prescription
-          </Label>
-          <Input id="prescription" name="prescription" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="bp" className="text-right">
-            Blood Pressure
-          </Label>
-          <Input id="bp" name="bp" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="heartrate" className="text-right">
-            Heartrate
-          </Label>
-          <Input id="heartrate" name="heartrate" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="weight" className="text-right">
-            Weight
-          </Label>
-          <Input id="weight" name="weight" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="height" className="text-right">
-            Height
-          </Label>
-          <Input id="height" name="height" className="col-span-3" />
-        </div>
-        <div className="grid grid-cols-4 items-center gap-4">
-          <Label htmlFor="notes" className="text-right">
-            Notes
-          </Label>
-          <Textarea id="notes" name="notes" className="col-span-3" />
-        </div>
+        <ModalField
+          label="Reason"
+          value={data.reason}
+          onChange={(e) => handleChange("reason", e.target.value)}
+          proposedValue={proposedChanges.reason}
+          onAccept={() => handleAccept("reason")}
+          onDecline={() => handleDecline("reason")}
+        />
+        <ModalField
+          label="Diagnosis"
+          value={data.diagnosis}
+          onChange={(e) => handleChange("diagnosis", e.target.value)}
+          proposedValue={proposedChanges.diagnosis}
+          onAccept={() => handleAccept("diagnosis")}
+          onDecline={() => handleDecline("diagnosis")}
+        />
+        <ModalField
+          label="Prescription"
+          value={data.prescription}
+          onChange={(e) => handleChange("prescription", e.target.value)}
+          proposedValue={proposedChanges.prescription}
+          onAccept={() => handleAccept("prescription")}
+          onDecline={() => handleDecline("prescription")}
+        />
+        <ModalField
+          label="Blood Pressure"
+          value={data.bp}
+          onChange={(e) => handleChange("bp", e.target.value)}
+          proposedValue={proposedChanges.bp}
+          onAccept={() => handleAccept("bp")}
+          onDecline={() => handleDecline("bp")}
+        />
+        <ModalField
+          label="Heart Rate"
+          value={data.heartRate}
+          onChange={(e) => handleChange("heartRate", e.target.value)}
+          proposedValue={proposedChanges.heartRate}
+          onAccept={() => handleAccept("heartRate")}
+          onDecline={() => handleDecline("heartRate")}
+        />
+        <ModalField
+          label="Weight"
+          value={data.weight}
+          onChange={(e) => handleChange("weight", e.target.value)}
+          proposedValue={proposedChanges.weight}
+          onAccept={() => handleAccept("weight")}
+          onDecline={() => handleDecline("weight")}
+        />
+        <ModalField
+          label="Height"
+          value={data.height}
+          onChange={(e) => handleChange("height", e.target.value)}
+          proposedValue={proposedChanges.height}
+          onAccept={() => handleAccept("height")}
+          onDecline={() => handleDecline("height")}
+        />
+        <ModalField
+          label="Notes"
+          variant="textarea"
+          value={data.notes}
+          onChange={(e) => handleChange("notes", e.target.value)}
+          proposedValue={proposedChanges.notes}
+          onAccept={() => handleAccept("notes")}
+          onDecline={() => handleDecline("notes")}
+        />
       </div>
       <div className="ml-auto flex gap-3">
         <Button type="submit">Save</Button>

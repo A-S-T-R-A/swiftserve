@@ -1,5 +1,5 @@
 import { api } from "@/shared/api/api";
-import type { TCreateAppointmentResponse } from "./types";
+import type { TCreateAppointmentResponse } from "../types";
 
 export async function postCreateAppointment(data: {
   patientId: number;

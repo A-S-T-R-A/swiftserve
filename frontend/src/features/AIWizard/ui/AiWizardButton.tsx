@@ -1,14 +1,10 @@
 import { usePatientStore } from "@/entities/Patient";
-import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
 import { postCreatePatient } from "@/features/CreatePatient/model/services";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +12,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { MicIcon } from "lucide-react";
 import { useState } from "react";
 import { AppointmentModal } from "./AppointmentModal";
+import { postCreateAppointment } from "@/widgets/AppointmentForm/model/services/services";
 
 export function AiWizardButton() {
   const navigate = useNavigate();
