@@ -31,17 +31,15 @@ function RouteComponent() {
       <Breadcrumb className="mb-10">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink href="/">Patients</BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbLink href={`/patients/${id}/appointments`}>
-              {patient?.name} {patient?.surname}
+            <BreadcrumbLink onClick={() => navigate({ to: "/" })}>
+              Patients
             </BreadcrumbLink>
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Appointment</BreadcrumbPage>
+            <BreadcrumbPage>
+              {patient?.name} {patient?.surname}
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

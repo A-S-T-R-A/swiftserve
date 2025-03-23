@@ -13,7 +13,7 @@ import { Input } from "@/shared/ui/input";
 import { Main } from "@/shared/ui/main";
 import { AppHeader } from "@/widgets/AppHeader";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute(
   "/patients/$id/appointments/$appointmentId/"
@@ -24,6 +24,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const { id, appointmentId } = Route.useParams();
   const { getSelectedUser } = useUserStore();
+  const navigate = useNavigate();
   const patient = getSelectedUser(Number(id));
 
   const { data, isPending, error } = useQuery({
@@ -44,11 +45,15 @@ function RouteComponent() {
         <Breadcrumb className="mb-10">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Patients</BreadcrumbLink>
+              <BreadcrumbLink onClick={() => navigate({ to: "/" })}>
+                Patients
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/patients/${id}/appointments`}>
+              <BreadcrumbLink
+                onClick={() => navigate({ to: `/patients/${id}/appointments` })}
+              >
                 {getSelectedUser(Number(id))?.name}{" "}
                 {getSelectedUser(Number(id))?.surname}
               </BreadcrumbLink>

@@ -23,9 +23,13 @@ export const columns: ColumnDef<TPatient>[] = [
   },
   {
     id: "actions",
-    header: "Actions",
+    header: () => <div className="text-center">Actions</div>,
     cell: ({ row }) => {
-      return <PatientsActions userId={row.original.id} />;
+      return (
+        <div className="text-center">
+          <PatientsActions userId={row.original.id} />
+        </div>
+      );
     },
   },
 ];

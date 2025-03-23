@@ -1,6 +1,6 @@
 import { Main } from "@/shared/ui/main";
 import { AppHeader } from "@/widgets/AppHeader";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -18,6 +18,7 @@ export const Route = createFileRoute("/patients/$id/appointments/create")({
 
 function RouteComponent() {
   const { id } = Route.useParams();
+  const navigate = useNavigate();
   const { getSelectedUser } = useUserStore();
 
   return (
@@ -27,11 +28,15 @@ function RouteComponent() {
         <Breadcrumb className="mb-20">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">Patients</BreadcrumbLink>
+              <BreadcrumbLink onClick={() => navigate({ to: "/" })}>
+                Patients
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/patients/${id}/appointments`}>
+              <BreadcrumbLink
+                onClick={() => navigate({ to: `/patients/${id}/appointments` })}
+              >
                 {getSelectedUser(Number(id))?.name}{" "}
                 {getSelectedUser(Number(id))?.surname}
               </BreadcrumbLink>
