@@ -1,7 +1,7 @@
-import { usePatientStore } from "@/entities/Patient";
+import { usePatientStore, type TPatient } from "@/entities/Patient";
 import { postCreatePatient } from "@/features/CreatePatient/model/services";
 import { Button } from "@/shared/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { MicIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
@@ -15,9 +15,11 @@ export function AiWizardButton({
   CreatePatientModal: ({
     isOpen,
     onCloseModal,
+    patientData,
   }: {
     isOpen: boolean;
     onCloseModal: () => void;
+    patientData?: TPatient;
   }) => ReactNode;
 }) {
   const navigate = useNavigate();
@@ -26,7 +28,8 @@ export function AiWizardButton({
   const [isAppoinmentOpen, setIsAppointmentOpen] = useState(false);
   const [isNotUnderstoodOpen, setIsNotUnderstoodOpen] = useState(false);
   const [initialAppointmentData, setInitialAppointmentData] = useState();
-  const queryClient = useQueryClient();
+  const [isCreatePatientOpen, setIsCreatePatientOpen] = useState(false);
+  const [patientData, setPatientData] = useState<TPatient>();
 
   const { mutate: createPatient } = useMutation({
     mutationKey: ["createPatient"],
@@ -54,20 +57,8 @@ export function AiWizardButton({
         parsed.notes;
 
       if (hasPatientData && !hasAppointmentData) {
-        createPatient(
-          {
-            name: parsed.name || "",
-            surname: parsed.surname || "",
-            phone: parsed.phone || "",
-            other: parsed.other || "",
-          },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: ["usersData"] });
-              navigate({ to: "/" });
-            },
-          }
-        );
+        setIsCreatePatientOpen(true);
+        setPatientData(parsed);
       } else if (hasAppointmentData) {
         const patient = patients[0];
 
@@ -116,6 +107,13 @@ export function AiWizardButton({
         isOpen={isNotUnderstoodOpen}
         onClose={() => setIsNotUnderstoodOpen(false)}
         CreatePatientModal={CreatePatientModal}
+      />
+      <CreatePatientModal
+        isOpen={isCreatePatientOpen}
+        onCloseModal={() => {
+          setIsCreatePatientOpen(false);
+        }}
+        patientData={patientData}
       />
     </>
   );

@@ -82,7 +82,7 @@ function RouteComponent() {
               Diagnosis
               <Input
                 id="diagnosis"
-                value={data.diagnosis}
+                value={data.diagnosis || ""}
                 className="col-span-3"
               />
             </div>
@@ -90,19 +90,19 @@ function RouteComponent() {
               Prescription
               <Input
                 id="prescription"
-                value={data.prescription}
+                value={data.prescription || ""}
                 className="col-span-3"
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               Blood Preassure
-              <Input id="bp" value={data.bp} className="col-span-3" />
+              <Input id="bp" value={data.bp || ""} className="col-span-3" />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               Heartrate
               <Input
                 id="heartrate"
-                value={data.heartRate}
+                value={data.heartRate || ""}
                 className="col-span-3"
               />
             </div>
@@ -116,7 +116,11 @@ function RouteComponent() {
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
               Notes
-              <Input id="notes" value={data.notes} className="col-span-3" />
+              <Input
+                id="notes"
+                value={data.notes || ""}
+                className="col-span-3"
+              />
             </div>
           </div>
           <PrintSummaryButton id={Number(appointmentId)} />
