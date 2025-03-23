@@ -13,21 +13,26 @@ import { Input } from "@/shared/ui/input";
 import { Main } from "@/shared/ui/main";
 import { AppHeader } from "@/widgets/AppHeader";
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/patients/$id/appointments/$id/")({
+export const Route = createFileRoute(
+  "/patients/$id/appointments/$appointmentId/"
+)({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { id } = Route.useParams();
+  const { id, appointmentId } = Route.useParams();
   const { getSelectedUser } = useUserStore();
+  const navigate = useNavigate();
   const patient = getSelectedUser(Number(id));
 
   const { data, isPending, error } = useQuery({
-    queryKey: ["getAppointmentById", id],
-    queryFn: () => getAppointmentById(Number(id)),
+    queryKey: ["getAppointmentById", appointmentId],
+    queryFn: () => getAppointmentById(Number(appointmentId)),
   });
+
+  const dateObj = data ? new Date(data.createdAt).toLocaleString() : "";
 
   if (isPending) return "Loading...";
 
@@ -37,17 +42,20 @@ function RouteComponent() {
     <div>
       <AppHeader />
       <Main>
-        <Breadcrumb className="mb-20">
+        <Breadcrumb className="mb-10">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/">
-                Appointment Management Dashboard
+              <BreadcrumbLink onClick={() => navigate({ to: "/" })}>
+                Patients
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <BreadcrumbLink href={`/patients/${id}/appointments`}>
-                {getSelectedUser(Number(id))?.name}
+              <BreadcrumbLink
+                onClick={() => navigate({ to: `/patients/${id}/appointments` })}
+              >
+                {getSelectedUser(Number(id))?.name}{" "}
+                {getSelectedUser(Number(id))?.surname}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
@@ -58,8 +66,11 @@ function RouteComponent() {
         </Breadcrumb>
 
         <div className="flex flex-col">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            {patient?.name} appointment
+          <h2 className="text-2xl  font-semibold tracking-tight">
+            {patient?.name} -{" "}
+            <span className="font-normal text-gray-500">
+              Appointment on {dateObj}
+            </span>
           </h2>
 
           <div className="grid gap-4 py-4">
@@ -108,7 +119,7 @@ function RouteComponent() {
               <Input id="notes" value={data.notes} className="col-span-3" />
             </div>
           </div>
-          <PrintSummaryButton id={Number(id)} />
+          <PrintSummaryButton id={Number(appointmentId)} />
         </div>
       </Main>
     </div>

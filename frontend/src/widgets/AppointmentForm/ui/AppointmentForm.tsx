@@ -1,5 +1,4 @@
 import { useUserStore } from "@/entities/Patient";
-import { PrintSummaryButton } from "@/features/PrintSummary";
 import { Button } from "@/shared/ui/button";
 import { useMutation } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
@@ -11,7 +10,9 @@ import { postCreateAppointment } from "../model/services/services";
 import { defaultAppointment } from "../const";
 
 export function AppointmentForm() {
-  const { id } = useParams({ from: "/patients/$id/appointments/create" });
+  const { id } = useParams({
+    from: "/patients/$id/appointments/create",
+  });
   const { getSelectedUser } = useUserStore();
   const patient = getSelectedUser(Number(id));
 
@@ -183,7 +184,6 @@ export function AppointmentForm() {
       </div>
       <div className="ml-auto flex gap-3">
         <Button type="submit">Save</Button>
-        <PrintSummaryButton id={Number(id)} />
       </div>
     </form>
   );

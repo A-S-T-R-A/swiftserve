@@ -1,3 +1,12 @@
+import { useUserStore } from "@/entities/Patient";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/shared/components/ui/breadcrumb";
 import { Button } from "@/shared/ui/button";
 import { Main } from "@/shared/ui/main";
 import { AppHeader } from "@/widgets/AppHeader";
@@ -13,9 +22,27 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
 
+  const { getSelectedUser } = useUserStore();
+  const patient = getSelectedUser(Number(id));
+
   return (
     <div>
       <AppHeader />
+      <Breadcrumb className="mb-10">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink onClick={() => navigate({ to: "/" })}>
+              Patients
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>
+              {patient?.name} {patient?.surname}
+            </BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
       <Main>
         <div className="mb-2 flex items-center justify-between space-y-2">
           <h1 className="text-2xl font-bold tracking-tight">Appointments</h1>
