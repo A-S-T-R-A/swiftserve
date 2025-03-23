@@ -55,11 +55,45 @@ const getPatientTranscript = (transcript: string) => [
   },
 ];
 
+const getAllTranscript = (transcript: string) => [
+  {
+    role: "system",
+    content: `
+Try to understand what the patient said.
+And extract only the mentioned fields relevant to the following patient form:
+
+{
+  "name": "",
+  "surname": "",
+  "phone": "",
+  "other": "",
+  "reason": "",
+  "diagnosis": "",
+  "prescription": "",
+  "bp": 0,
+  "heartRate": 0,
+  "weight": 0,
+  "height": 0,
+  "notes": ""
+}
+`,
+  },
+  {
+    role: "user",
+    content: `Patient said:\n"${transcript}"`,
+  },
+];
+
+type TPrompt = {
+  role: string;
+  content: string;
+};
+
 export const useAudioTranscription = (
   token: string,
   onParsed: (parsed: any) => void,
   onComplete: () => void,
-  type: "patient" | "record"
+  type: "patient" | "record" | "all"
 ) => {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -110,10 +144,16 @@ export const useAudioTranscription = (
           const transcript = await response.text();
           console.log("[Transcribe] Raw transcript:", transcript);
 
-          const prompt =
-            type === "patient"
-              ? getPatientTranscript(transcript)
-              : getMedicalRecordTranscript(transcript);
+          let prompt: TPrompt[] = [];
+
+          if (type === "patient") {
+            prompt = getPatientTranscript(transcript);
+          } else if (type === "record") {
+            prompt = getMedicalRecordTranscript(transcript);
+          } else {
+            prompt = getAllTranscript(transcript);
+          }
+
           const gptResponse = await postGptRequest(prompt, token);
 
           const parsed = JSON.parse(gptResponse);

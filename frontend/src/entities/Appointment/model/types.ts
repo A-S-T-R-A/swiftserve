@@ -3,13 +3,13 @@ import { z } from "zod";
 export const AppointmentSchema = z.object({
   id: z.number(),
   reason: z.string(),
-  diagnosis: z.string(),
-  prescription: z.string(),
-  bp: z.number(),
-  heartRate: z.number(),
+  diagnosis: z.string().nullable(),
+  prescription: z.string().nullable(),
+  bp: z.number().nullable(),
+  heartRate: z.number().nullable(),
   weight: z.number(),
   height: z.number(),
-  notes: z.string(),
+  notes: z.string().nullable(),
   createdAt: z.string(),
 });
 

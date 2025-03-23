@@ -1,7 +1,12 @@
 import { usePatientStore } from "@/entities/Patient";
 import { Button } from "@/shared/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useParams } from "@tanstack/react-router";
+import {
+  useNavigate,
+  useParams,
+  useRouter,
+  useRouterState,
+} from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Loader } from "lucide-react";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
@@ -17,7 +22,11 @@ export function AppointmentForm() {
   const { getSelectedPatient } = usePatientStore();
   const patient = getSelectedPatient(Number(id));
 
-  const [data, setData] = useState(defaultAppointment);
+  const router = useRouter();
+  const initialData = router.state.location.state?.data;
+  console.log(initialData);
+
+  const [data, setData] = useState(initialData || defaultAppointment);
   const [proposedChanges, setProposedChanges] = useState<
     Partial<typeof defaultAppointment>
   >({});
