@@ -1,29 +1,32 @@
 import { usePatientStore } from "@/entities/Patient";
 import { Button } from "@/shared/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate, useParams, useRouter } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Loader } from "lucide-react";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
 import { ModalField } from "@/features/CreatePatient/ui/ModalField";
-import { postCreateAppointment } from "../model/services/services";
-import { defaultAppointment } from "../const";
 
-export function AppointmentForm() {
-  const { id } = useParams({
-    from: "/patients/$id/appointments/create",
+import { defaultAppointment } from "../const";
+import { postEditAppointment } from "@/features/EditAppointment";
+
+export function AppointmentEditForm({
+  appointmentData,
+}: {
+  appointmentData: any;
+}) {
+  const { id, appointmentId } = useParams({
+    from: "/patients/$id/appointments/$appointmentId/edit/",
   });
   const navigate = useNavigate();
   const { getSelectedPatient } = usePatientStore();
   const patient = getSelectedPatient(Number(id));
 
-  const router = useRouter();
+  const initialData = appointmentData;
 
-  const state = router.state.location.state;
-  const initialData =
-    state && "data" in state ? (state as any).data : undefined;
-
-  const [data, setData] = useState(initialData || defaultAppointment);
+  const [data, setData] = useState<typeof defaultAppointment>(
+    initialData || defaultAppointment
+  );
   const [proposedChanges, setProposedChanges] = useState<
     Partial<typeof defaultAppointment>
   >({});
@@ -56,7 +59,7 @@ export function AppointmentForm() {
 
   const { mutate } = useMutation({
     mutationKey: ["createAppointment"],
-    mutationFn: postCreateAppointment,
+    mutationFn: postEditAppointment,
   });
 
   const handleChange = (key: keyof typeof data, value: string) => {
@@ -88,20 +91,22 @@ export function AppointmentForm() {
 
     mutate(
       {
-        patientId: Number(id),
-        reason: data.reason,
-        diagnosis: data.diagnosis,
-        prescription: data.prescription,
-        bp: Number(data.bp),
-        heartRate: Number(data.heartRate),
-        weight: Number(data.weight),
-        height: Number(data.height),
-        notes: data.notes,
+        appointmentId: Number(appointmentId),
+        data: {
+          reason: data.reason,
+          diagnosis: data.diagnosis,
+          prescription: data.prescription,
+          bp: Number(data.bp),
+          heartRate: Number(data.heartRate),
+          weight: Number(data.weight),
+          height: Number(data.height),
+          notes: data.notes,
+        } as any,
       },
       {
         onSuccess: (data) => {
           navigate({
-            to: `/patients/${id}/appointments/${data.id}/`,
+            to: `/patients/${id}/appointments/${appointmentId}/`,
           });
         },
       }
@@ -112,7 +117,7 @@ export function AppointmentForm() {
     <form onSubmit={onSubmit} className="flex flex-col">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-2xl font-semibold tracking-tight">
-          {patient?.name} create an appointment
+          {patient?.name} edit an appointment
         </h2>
         <Button
           type="button"
