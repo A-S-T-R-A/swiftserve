@@ -1,7 +1,7 @@
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import { Button } from "@/shared/ui/button";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { Loader } from "lucide-react";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
@@ -13,8 +13,9 @@ export function AppointmentForm() {
   const { id } = useParams({
     from: "/patients/$id/appointments/create",
   });
-  const { getSelectedUser } = useUserStore();
-  const patient = getSelectedUser(Number(id));
+  const navigate = useNavigate();
+  const { getSelectedPatient } = usePatientStore();
+  const patient = getSelectedPatient(Number(id));
 
   const [data, setData] = useState(defaultAppointment);
   const [proposedChanges, setProposedChanges] = useState<
@@ -78,17 +79,26 @@ export function AppointmentForm() {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    mutate({
-      patientId: Number(id),
-      reason: data.reason,
-      diagnosis: data.diagnosis,
-      prescription: data.prescription,
-      bp: Number(data.bp),
-      heartRate: Number(data.heartRate),
-      weight: Number(data.weight),
-      height: Number(data.height),
-      notes: data.notes,
-    });
+    mutate(
+      {
+        patientId: Number(id),
+        reason: data.reason,
+        diagnosis: data.diagnosis,
+        prescription: data.prescription,
+        bp: Number(data.bp),
+        heartRate: Number(data.heartRate),
+        weight: Number(data.weight),
+        height: Number(data.height),
+        notes: data.notes,
+      },
+      {
+        onSuccess: (data) => {
+          navigate({
+            to: `/patients/${id}/appointments/${data.id}/`,
+          });
+        },
+      }
+    );
   };
 
   return (
@@ -98,6 +108,7 @@ export function AppointmentForm() {
           {patient?.name} create an appointment
         </h2>
         <Button
+          type="button"
           onMouseDown={() => {
             setRecording(true);
             startRecording();

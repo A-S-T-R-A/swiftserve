@@ -1,4 +1,5 @@
 import { api } from "@/shared/api/api";
+import type { TCreateAppointmentResponse } from "../types";
 
 export async function postCreateAppointment(data: {
   patientId: number;
@@ -10,6 +11,6 @@ export async function postCreateAppointment(data: {
   weight: number;
   height: number;
   notes: string;
-}) {
-  return await api.post("/appointments", data);
+}): Promise<TCreateAppointmentResponse> {
+  return await api.post("/appointments", data).then((res) => res.data);
 }

@@ -9,7 +9,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/shared/components/ui/breadcrumb";
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import { AppointmentForm } from "@/widgets/AppointmentForm";
 
 export const Route = createFileRoute("/patients/$id/appointments/create")({
@@ -19,7 +19,7 @@ export const Route = createFileRoute("/patients/$id/appointments/create")({
 function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
-  const { getSelectedUser } = useUserStore();
+  const { getSelectedPatient } = usePatientStore();
 
   return (
     <div>
@@ -37,8 +37,8 @@ function RouteComponent() {
               <BreadcrumbLink
                 onClick={() => navigate({ to: `/patients/${id}/appointments` })}
               >
-                {getSelectedUser(Number(id))?.name}{" "}
-                {getSelectedUser(Number(id))?.surname}
+                {getSelectedPatient(Number(id))?.name}{" "}
+                {getSelectedPatient(Number(id))?.surname}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />

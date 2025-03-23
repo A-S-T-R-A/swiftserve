@@ -1,9 +1,9 @@
 import { Button } from "@/shared/ui/button";
 import { downloadJsonToCsv } from "../lib/downloadJsonToCsv";
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 
 export function DownloadUsers() {
-  const { users } = useUserStore();
+  const { patients } = usePatientStore();
 
-  return <Button onClick={() => downloadJsonToCsv(users)}>Download</Button>;
+  return <Button onClick={() => downloadJsonToCsv(patients)}>Download</Button>;
 }

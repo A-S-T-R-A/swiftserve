@@ -4,12 +4,12 @@ import { SidebarProvider } from "@/shared/ui/sidebar";
 import { AppSidebar } from "@/widgets/AppSidebar";
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import { getUsers } from "@/entities/Patient/model/getUsers";
 
 export const Route = createRootRoute({
   component: () => {
-    const { setUsers } = useUserStore();
+    const { setPatients } = usePatientStore();
 
     const { data } = useQuery({
       queryKey: ["usersData"],
@@ -17,7 +17,7 @@ export const Route = createRootRoute({
     });
 
     useEffect(() => {
-      if (data) setUsers(data);
+      if (data) setPatients(data);
     }, [data]);
     return (
       <>

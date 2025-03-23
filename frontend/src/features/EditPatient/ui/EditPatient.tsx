@@ -1,4 +1,4 @@
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import {
   Dialog,
   DialogContent,
@@ -22,9 +22,9 @@ type TEditPatientProps = {
 export function EditPatient(props: TEditPatientProps) {
   const { isOpen, onClose, userId } = props;
   const queryClient = useQueryClient();
-  const { getSelectedUser } = useUserStore();
+  const { getSelectedPatient } = usePatientStore();
 
-  const patientData = getSelectedUser(userId);
+  const patientData = getSelectedPatient(userId);
 
   const { mutate } = useMutation({
     mutationKey: ["editPatient"],

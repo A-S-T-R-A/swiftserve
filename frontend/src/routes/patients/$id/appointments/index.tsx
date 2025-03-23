@@ -1,4 +1,4 @@
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -22,8 +22,8 @@ function RouteComponent() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
 
-  const { getSelectedUser } = useUserStore();
-  const patient = getSelectedUser(Number(id));
+  const { getSelectedPatient } = usePatientStore();
+  const patient = getSelectedPatient(Number(id));
 
   return (
     <div>
