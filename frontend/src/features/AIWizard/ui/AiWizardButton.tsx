@@ -3,11 +3,11 @@ import { postCreatePatient } from "@/features/CreatePatient/model/services";
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Axis3dIcon, MicIcon, Speech } from "lucide-react";
+import { MicIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AppointmentModal } from "./AppointmentModal";
-import { postCreateAppointment } from "@/widgets/AppointmentForm/model/services/services";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
+import { NotUnderstood } from "./NotUnderstood";
 
 export function AiWizardButton({
   CreatePatientModal,
@@ -24,17 +24,13 @@ export function AiWizardButton({
   const [isListening, setIsListening] = useState(false);
   const { patients } = usePatientStore();
   const [isAppoinmentOpen, setIsAppointmentOpen] = useState(false);
+  const [isNotUnderstoodOpen, setIsNotUnderstoodOpen] = useState(false);
   const [initialAppointmentData, setInitialAppointmentData] = useState();
   const queryClient = useQueryClient();
 
   const { mutate: createPatient } = useMutation({
     mutationKey: ["createPatient"],
     mutationFn: postCreatePatient,
-  });
-
-  const { mutate: createAppointment } = useMutation({
-    mutationKey: ["createAppointment"],
-    mutationFn: postCreateAppointment,
   });
 
   const { startRecording, stopRecording } = useAudioTranscription(
@@ -81,6 +77,8 @@ export function AiWizardButton({
             data: parsed,
           },
         } as any);
+      } else {
+        setIsNotUnderstoodOpen(true);
       }
     },
     () => setIsListening(false),
@@ -114,11 +112,11 @@ export function AiWizardButton({
         onClose={() => setIsAppointmentOpen(false)}
         initialData={initialAppointmentData as any}
       />
-      {/* <NotUnderstood
+      <NotUnderstood
         isOpen={isNotUnderstoodOpen}
         onClose={() => setIsNotUnderstoodOpen(false)}
         CreatePatientModal={CreatePatientModal}
-      /> */}
+      />
     </>
   );
 }
