@@ -13,7 +13,7 @@ export function PrintSummaryButton({ id }: { id: number }) {
   }
 
   return (
-    <Button className="w-fit" onClick={clickHandler}>
+    <Button className="w-fit cursor-pointer" onClick={clickHandler}>
       Print Summary
     </Button>
   );

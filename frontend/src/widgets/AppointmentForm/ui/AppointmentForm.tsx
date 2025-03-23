@@ -1,6 +1,5 @@
 import { useUserStore } from "@/entities/Patient";
 import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
-import { PrintSummaryButton } from "@/features/PrintSummary";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/ui/button";
@@ -10,7 +9,9 @@ import { useParams } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 
 export function AppointmentForm() {
-  const { id } = useParams({ from: "/patients/$id/appointments/create" });
+  const { id } = useParams({
+    from: "/patients/$id/appointments/create",
+  });
   const { getSelectedUser } = useUserStore();
 
   const patient = getSelectedUser(Number(id));
@@ -100,7 +101,6 @@ export function AppointmentForm() {
       </div>
       <div className="ml-auto flex gap-3">
         <Button type="submit">Save</Button>
-        <PrintSummaryButton id={Number(id)} />
       </div>
     </form>
   );
