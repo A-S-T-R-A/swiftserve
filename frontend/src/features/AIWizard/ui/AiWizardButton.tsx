@@ -3,13 +3,23 @@ import { postCreatePatient } from "@/features/CreatePatient/model/services";
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { MicIcon } from "lucide-react";
-import { useState } from "react";
+import { Axis3dIcon, MicIcon, Speech } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { AppointmentModal } from "./AppointmentModal";
 import { postCreateAppointment } from "@/widgets/AppointmentForm/model/services/services";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
 
-export function AiWizardButton() {
+export function AiWizardButton({
+  CreatePatientModal,
+}: {
+  CreatePatientModal: ({
+    isOpen,
+    onCloseModal,
+  }: {
+    isOpen: boolean;
+    onCloseModal: () => void;
+  }) => ReactNode;
+}) {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
   const { patients } = usePatientStore();
@@ -104,6 +114,11 @@ export function AiWizardButton() {
         onClose={() => setIsAppointmentOpen(false)}
         initialData={initialAppointmentData as any}
       />
+      {/* <NotUnderstood
+        isOpen={isNotUnderstoodOpen}
+        onClose={() => setIsNotUnderstoodOpen(false)}
+        CreatePatientModal={CreatePatientModal}
+      /> */}
     </>
   );
 }

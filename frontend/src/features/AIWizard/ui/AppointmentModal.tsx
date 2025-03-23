@@ -54,10 +54,7 @@ export function AppointmentModal(props: TAppointmentModal) {
           <Label>Create appointment for</Label>
           <Select value={value} onValueChange={setValue}>
             <SelectTrigger className="w-[180px]">
-              <SelectValue
-                placeholder="Select a patient"
-                // onChange={setValue}
-              />
+              <SelectValue placeholder="Select a patient" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
