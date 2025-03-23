@@ -61,21 +61,31 @@ const getAllTranscript = (transcript: string) => [
     content: `
 Try to understand what the patient said.
 And extract only the mentioned fields relevant to the following patient form:
-
-{
-  "name": "",
+Decide if the patient is talking about registration (patient form) or appointment (medical form). 
+You must choose only one form. If the patient mentions the word 'appointment', 'prescription', 'blood pressure', or similar — it's medical. 
+Otherwise — it's patient.
+{  
+"name": "",
   "surname": "",
   "phone": "",
-  "other": "",
+  "other": ""
+}
+
+or about ( IF USER SPEAK ABOUT APPOINTMENT )
+
+{
   "reason": "",
   "diagnosis": "",
   "prescription": "",
-  "bp": 0,
-  "heartRate": 0,
-  "weight": 0,
-  "height": 0,
+  "bp": '',
+  "heartRate":'',
+  "weight":'',
+  "height":'',
   "notes": ""
 }
+
+fill only one form and return a **pure JSON** object (no markdown, no explanations, no code block).
+if you fill form and you have unexpected information, in case of first form ( patient ) put this into other.
 `,
   },
   {

@@ -31,30 +31,36 @@ export function AiWizardButton({
   const [isCreatePatientOpen, setIsCreatePatientOpen] = useState(false);
   const [patientData, setPatientData] = useState<TPatient>();
 
-  const { mutate: createPatient } = useMutation({
-    mutationKey: ["createPatient"],
-    mutationFn: postCreatePatient,
-  });
-
   const { startRecording, stopRecording } = useAudioTranscription(
     import.meta.env.VITE_OPENAI_API_KEY,
     (parsed) => {
-      console.log("[AI Wizard Parsed]", parsed);
       if (!initialAppointmentData) {
         setInitialAppointmentData(parsed);
       }
 
-      const hasPatientData =
-        parsed.name ||
-        (parsed.name && (parsed.surname || parsed.phone || parsed.other));
-      const hasAppointmentData =
-        parsed.reason ||
-        parsed.diagnosis ||
-        parsed.bp ||
-        parsed.heartRate ||
-        parsed.weight ||
-        parsed.height ||
-        parsed.notes;
+      const patientFields = [
+        parsed.name,
+        parsed.surname,
+        parsed.phone,
+        parsed.other,
+      ];
+
+      const appointmentFields = [
+        parsed.reason,
+        parsed.diagnosis,
+        parsed.bp,
+        parsed.heartRate,
+        parsed.weight,
+        parsed.height,
+        parsed.notes,
+      ];
+
+      const filledPatientFieldsCount = patientFields.filter(Boolean).length;
+      const filledAppointmentFieldsCount =
+        appointmentFields.filter(Boolean).length;
+
+      const hasPatientData = filledPatientFieldsCount >= 2;
+      const hasAppointmentData = filledAppointmentFieldsCount >= 2;
 
       if (hasPatientData && !hasAppointmentData) {
         setIsCreatePatientOpen(true);
