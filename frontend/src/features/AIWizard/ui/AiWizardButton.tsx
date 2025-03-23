@@ -9,16 +9,28 @@ import {
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { MicIcon } from "lucide-react";
-import { useState } from "react";
+import { Axis3dIcon, MicIcon, Speech } from "lucide-react";
+import { useState, type ReactNode } from "react";
 import { AppointmentModal } from "./AppointmentModal";
 import { postCreateAppointment } from "@/widgets/AppointmentForm/model/services/services";
+import { NotUnderstood } from "./NotUnderstood";
 
-export function AiWizardButton() {
+export function AiWizardButton({
+  CreatePatientModal,
+}: {
+  CreatePatientModal: ({
+    isOpen,
+    onCloseModal,
+  }: {
+    isOpen: boolean;
+    onCloseModal: () => void;
+  }) => ReactNode;
+}) {
   const navigate = useNavigate();
   const { patients } = usePatientStore();
   const [isOpen, setIsOpen] = useState(false);
   const [isAppoinmentOpen, setIsAppointmentOpen] = useState(false);
+  const [isNotUnderstoodOpen, setIsNotUnderstoodOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
 
   const queryClient = useQueryClient();
@@ -91,7 +103,9 @@ export function AiWizardButton() {
               <MicIcon /> Listening...
             </>
           ) : (
-            "AI Wizard"
+            <>
+              <Speech /> AI Wizard
+            </>
           )}
         </Button>
 
@@ -107,13 +121,20 @@ export function AiWizardButton() {
             <Button onClick={() => setIsAppointmentOpen(true)}>
               Start Appointment for Patient NOT UNDERSTOOD
             </Button>
-            <Button>NOT UNDERSTOOD</Button>
+            <Button onClick={() => setIsNotUnderstoodOpen(true)}>
+              NOT UNDERSTOOD
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
       <AppointmentModal
         isOpen={isAppoinmentOpen}
         onClose={() => setIsAppointmentOpen(false)}
+      />
+      <NotUnderstood
+        isOpen={isNotUnderstoodOpen}
+        onClose={() => setIsNotUnderstoodOpen(false)}
+        CreatePatientModal={CreatePatientModal}
       />
     </>
   );
