@@ -29,7 +29,7 @@ export const ModalField = (props: TProps) => {
   const isProposedShown = Boolean(proposedValue);
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 w-full">
       <label className="block text-sm font-medium text-muted-foreground">
         {label}
       </label>
