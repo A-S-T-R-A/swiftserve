@@ -34,19 +34,20 @@ export function EditPatient(props: TEditPatientProps) {
   function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
-    // const formData = new FormData(e.currentTarget);
+    const formData = new FormData(e.currentTarget);
 
     mutate(
       {
-        name: new Date().getTime().toString(), // formData.get("name") as string,
-        surname: "test321", // formData.get("surname") as string,
-        phone: "321321", // formData.get("phone") as string,
-        other: "dsads", // formData.get("other-info") as string,
+        name: formData.get("name") as string,
+        surname: formData.get("surname") as string,
+        phone: formData.get("phone") as string,
+        other: formData.get("other-info") as string,
         patientId: userId,
       },
       {
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: ["usersData"] });
+          onClose();
         },
       }
     );
@@ -110,12 +111,6 @@ export function EditPatient(props: TEditPatientProps) {
           </div>
         </form>
         <DialogFooter>
-          <Button
-            className="w-fit mr-auto cursor-pointer"
-            variant="cosmicOutline"
-          >
-            AI
-          </Button>
           <Button
             className="cursor-pointer"
             type="submit"

@@ -30,7 +30,7 @@ export const mockSidebarData: SidebarData = {
       title: "General",
       items: [
         {
-          title: "Patient Management",
+          title: "Patients",
           url: "/",
           icon: IconLayoutDashboard,
         },
