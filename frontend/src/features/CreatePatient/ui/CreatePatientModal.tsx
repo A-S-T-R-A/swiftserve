@@ -31,7 +31,12 @@ export function CreatePatientModal({
 
   useEffect(() => {
     if (patientData) {
-      setData(patientData);
+      setData({
+        name: patientData.name,
+        surname: patientData.surname,
+        phone: patientData.phone,
+        other: patientData.other,
+      });
     }
   }, [patientData]);
 
