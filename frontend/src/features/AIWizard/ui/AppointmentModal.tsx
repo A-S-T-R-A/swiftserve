@@ -1,3 +1,4 @@
+import type { TAppointment } from "@/entities/Appointment";
 import { usePatientStore } from "@/entities/Patient";
 import {
   Dialog,
@@ -23,17 +24,24 @@ import { useState } from "react";
 type TAppointmentModal = {
   isOpen: boolean;
   onClose: () => void;
+  initialData: TAppointment;
 };
 export function AppointmentModal(props: TAppointmentModal) {
-  const { isOpen, onClose } = props;
+  const { isOpen, onClose, initialData } = props;
 
   const navigate = useNavigate();
   const { patients } = usePatientStore();
 
   const [value, setValue] = useState<string | undefined>();
 
+  console.log("INITIAL STATE IN APPOINTMENT MODAL: ", initialData);
+
   function createHandler() {
-    navigate({ to: `/patients/${value}/appointments/create` });
+    navigate({
+      state: {
+        data: initialData,
+      },
+    } as any);
   }
 
   return (

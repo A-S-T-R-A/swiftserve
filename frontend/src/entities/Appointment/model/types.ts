@@ -5,7 +5,7 @@ export const AppointmentSchema = z.object({
   reason: z.string(),
   diagnosis: z.string(),
   prescription: z.string(),
-  bp: z.number(),
+  bp: z.number().nullable(),
   heartRate: z.number(),
   weight: z.number(),
   height: z.number(),
