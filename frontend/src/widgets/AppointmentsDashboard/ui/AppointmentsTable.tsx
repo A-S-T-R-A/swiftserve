@@ -82,16 +82,18 @@ export function AppointmentsTable<TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   className="cursor-pointer h-[50px]"
-                  onClick={() =>
-                    navigate({
-                      to: `/patients/${patientId}/appointments/${row.original.id}`,
-                    })
-                  }
                 >
                   {row.getVisibleCells().map((cell) => {
-                    console.log(cell);
                     return (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        onClick={() => {
+                          if (cell.column.id === "actions") return;
+                          navigate({
+                            to: `/patients/${patientId}/appointments/${row.original.id}`,
+                          });
+                        }}
+                      >
                         {flexRender(
                           cell.column.columnDef?.cell,
                           cell.getContext()

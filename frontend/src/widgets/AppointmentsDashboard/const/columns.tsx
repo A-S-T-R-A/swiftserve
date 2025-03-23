@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/table-core";
 import type { TAppointment } from "@/entities/Appointment";
+import { AppointmentActions } from "../ui/AppointmentActions";
 
 export const columns: ColumnDef<TAppointment>[] = [
   {
@@ -20,11 +21,11 @@ export const columns: ColumnDef<TAppointment>[] = [
     header: "Blood Pressure",
     enableGlobalFilter: false,
   },
-  // {
-  //   id: "actions",
-  //   header: "Actions",
-  //   cell: ({ row }) => {
-  //     return <ActionsUser userId={row.original.id} />;
-  //   },
-  // },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => {
+      return <AppointmentActions appointmentId={row.original.id} />;
+    },
+  },
 ];

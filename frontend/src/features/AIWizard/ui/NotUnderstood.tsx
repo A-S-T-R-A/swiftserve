@@ -67,7 +67,7 @@ export function NotUnderstood(props: NotUnderstoodProps) {
                 <SelectGroup>
                   <SelectLabel>Patients</SelectLabel>
                   {patients.map((patient) => (
-                    <SelectItem value={String(patient.id)}>
+                    <SelectItem key={patient.id} value={String(patient.id)}>
                       {patient.name}
                     </SelectItem>
                   ))}
