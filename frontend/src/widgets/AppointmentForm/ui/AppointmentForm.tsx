@@ -1,20 +1,21 @@
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import { postCreateAppointment } from "@/features/CreateAppointment/model/services";
 import { Label } from "@/shared/components/ui/label";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Button } from "@/shared/ui/button";
 import { Input } from "@/shared/ui/input";
 import { useMutation } from "@tanstack/react-query";
-import { useParams } from "@tanstack/react-router";
+import { useNavigate, useParams } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 
 export function AppointmentForm() {
   const { id } = useParams({
     from: "/patients/$id/appointments/create",
   });
-  const { getSelectedUser } = useUserStore();
+  const navigate = useNavigate();
+  const { getSelectedPatient } = usePatientStore();
 
-  const patient = getSelectedUser(Number(id));
+  const patient = getSelectedPatient(Number(id));
 
   const { mutate } = useMutation({
     mutationKey: ["createAppointment"],
@@ -26,17 +27,26 @@ export function AppointmentForm() {
 
     // const formData = new FormData(e.currentTarget);
 
-    mutate({
-      patientId: Number(id),
-      reason: "reason", // formData.get("reason") as string,
-      diagnosis: "diagnosis", // formData.get("diagnosis") as string,
-      prescription: "prescription", // formData.get("prescription") as string,
-      bp: 21, //Number(formData.get("bp")),
-      heartRate: 11, // Number(formData.get("heartRate")),
-      weight: 22, // Number(formData.get("weight")),
-      height: 22, // Number(formData.get("height")),
-      notes: "321", // formData.get("notes") as string,
-    });
+    mutate(
+      {
+        patientId: Number(id),
+        reason: "reason", // formData.get("reason") as string,
+        diagnosis: "diagnosis", // formData.get("diagnosis") as string,
+        prescription: "prescription", // formData.get("prescription") as string,
+        bp: 21, //Number(formData.get("bp")),
+        heartRate: 11, // Number(formData.get("heartRate")),
+        weight: 22, // Number(formData.get("weight")),
+        height: 22, // Number(formData.get("height")),
+        notes: "321", // formData.get("notes") as string,
+      },
+      {
+        onSuccess: (data) => {
+          navigate({
+            to: `/patients/${data.patientId}/appointments/${data.id}/`,
+          });
+        },
+      }
+    );
   }
 
   return (

@@ -1,5 +1,5 @@
 import { getAppointmentById } from "@/entities/Appointment";
-import { useUserStore } from "@/entities/Patient";
+import { usePatientStore } from "@/entities/Patient";
 import { PrintSummaryButton } from "@/features/PrintSummary";
 import {
   Breadcrumb,
@@ -23,9 +23,9 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { id, appointmentId } = Route.useParams();
-  const { getSelectedUser } = useUserStore();
+  const { getSelectedPatient } = usePatientStore();
   const navigate = useNavigate();
-  const patient = getSelectedUser(Number(id));
+  const patient = getSelectedPatient(Number(id));
 
   const { data, isPending, error } = useQuery({
     queryKey: ["getAppointmentById", appointmentId],
@@ -54,8 +54,8 @@ function RouteComponent() {
               <BreadcrumbLink
                 onClick={() => navigate({ to: `/patients/${id}/appointments` })}
               >
-                {getSelectedUser(Number(id))?.name}{" "}
-                {getSelectedUser(Number(id))?.surname}
+                {getSelectedPatient(Number(id))?.name}{" "}
+                {getSelectedPatient(Number(id))?.surname}
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
