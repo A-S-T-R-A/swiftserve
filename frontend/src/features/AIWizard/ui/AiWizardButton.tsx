@@ -1,13 +1,13 @@
-import { usePatientStore } from "@/entities/Patient";
+import { usePatientStore, type TPatient } from "@/entities/Patient";
 import { postCreatePatient } from "@/features/CreatePatient/model/services";
 import { Button } from "@/shared/ui/button";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Axis3dIcon, MicIcon, Speech } from "lucide-react";
+import { MicIcon } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { AppointmentModal } from "./AppointmentModal";
-import { postCreateAppointment } from "@/widgets/AppointmentForm/model/services/services";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
+import { NotUnderstood } from "./NotUnderstood";
 
 export function AiWizardButton({
   CreatePatientModal,
@@ -15,26 +15,25 @@ export function AiWizardButton({
   CreatePatientModal: ({
     isOpen,
     onCloseModal,
+    patientData,
   }: {
     isOpen: boolean;
     onCloseModal: () => void;
+    patientData?: TPatient;
   }) => ReactNode;
 }) {
   const navigate = useNavigate();
   const [isListening, setIsListening] = useState(false);
   const { patients } = usePatientStore();
   const [isAppoinmentOpen, setIsAppointmentOpen] = useState(false);
+  const [isNotUnderstoodOpen, setIsNotUnderstoodOpen] = useState(false);
   const [initialAppointmentData, setInitialAppointmentData] = useState();
-  const queryClient = useQueryClient();
+  const [isCreatePatientOpen, setIsCreatePatientOpen] = useState(false);
+  const [patientData, setPatientData] = useState<TPatient>();
 
   const { mutate: createPatient } = useMutation({
     mutationKey: ["createPatient"],
     mutationFn: postCreatePatient,
-  });
-
-  const { mutate: createAppointment } = useMutation({
-    mutationKey: ["createAppointment"],
-    mutationFn: postCreateAppointment,
   });
 
   const { startRecording, stopRecording } = useAudioTranscription(
@@ -58,20 +57,8 @@ export function AiWizardButton({
         parsed.notes;
 
       if (hasPatientData && !hasAppointmentData) {
-        createPatient(
-          {
-            name: parsed.name || "",
-            surname: parsed.surname || "",
-            phone: parsed.phone || "",
-            other: parsed.other || "",
-          },
-          {
-            onSuccess: () => {
-              queryClient.invalidateQueries({ queryKey: ["usersData"] });
-              navigate({ to: "/" });
-            },
-          }
-        );
+        setIsCreatePatientOpen(true);
+        setPatientData(parsed);
       } else if (hasAppointmentData) {
         const patient = patients[0];
 
@@ -81,6 +68,8 @@ export function AiWizardButton({
             data: parsed,
           },
         } as any);
+      } else {
+        setIsNotUnderstoodOpen(true);
       }
     },
     () => setIsListening(false),
@@ -114,11 +103,18 @@ export function AiWizardButton({
         onClose={() => setIsAppointmentOpen(false)}
         initialData={initialAppointmentData as any}
       />
-      {/* <NotUnderstood
+      <NotUnderstood
         isOpen={isNotUnderstoodOpen}
         onClose={() => setIsNotUnderstoodOpen(false)}
         CreatePatientModal={CreatePatientModal}
-      /> */}
+      />
+      <CreatePatientModal
+        isOpen={isCreatePatientOpen}
+        onCloseModal={() => {
+          setIsCreatePatientOpen(false);
+        }}
+        patientData={patientData}
+      />
     </>
   );
 }

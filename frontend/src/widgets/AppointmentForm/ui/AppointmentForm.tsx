@@ -23,8 +23,10 @@ export function AppointmentForm() {
   const patient = getSelectedPatient(Number(id));
 
   const router = useRouter();
-  const initialData = router.state.location.state?.data;
-  console.log(initialData);
+
+  const state = router.state.location.state;
+  const initialData =
+    state && "data" in state ? (state as any).data : undefined;
 
   const [data, setData] = useState(initialData || defaultAppointment);
   const [proposedChanges, setProposedChanges] = useState<
@@ -32,11 +34,7 @@ export function AppointmentForm() {
   >({});
   const [recording, setRecording] = useState(false);
 
-  const {
-    startRecording,
-    stopRecording,
-    recording: isRecording,
-  } = useAudioTranscription(
+  const { startRecording, stopRecording } = useAudioTranscription(
     import.meta.env.VITE_OPENAI_API_KEY,
     (parsed) => {
       const autoAccepted: Partial<typeof defaultAppointment> = {};
@@ -51,7 +49,10 @@ export function AppointmentForm() {
         }
       }
 
-      setData((prev) => ({ ...prev, ...autoAccepted }));
+      setData((prev: typeof defaultAppointment) => ({
+        ...prev,
+        ...autoAccepted,
+      }));
       setProposedChanges((prev) => ({ ...prev, ...proposed }));
     },
     () => setRecording(false),
@@ -64,20 +65,22 @@ export function AppointmentForm() {
   });
 
   const handleChange = (key: keyof typeof data, value: string) => {
-    setData((prev) => ({ ...prev, [key]: value }));
+    setData((prev: typeof defaultAppointment) => ({ ...prev, [key]: value }));
   };
 
   const handleAccept = (key: keyof typeof data) => {
-    setData((prev) => ({
+    setData((prev: typeof defaultAppointment) => ({
       ...prev,
-      [key]: proposedChanges[key] || "",
+      [key]:
+        (proposedChanges as Record<keyof typeof defaultAppointment, string>)[
+          key as keyof typeof proposedChanges
+        ] || "",
     }));
     setProposedChanges((prev) => ({
       ...prev,
       [key]: "",
     }));
   };
-
   const handleDecline = (key: keyof typeof data) => {
     setProposedChanges((prev) => ({
       ...prev,

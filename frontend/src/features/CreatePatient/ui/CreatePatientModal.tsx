@@ -6,25 +6,34 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/ui/button";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader, PlusIcon } from "lucide-react";
+import { Loader } from "lucide-react";
 import { postCreatePatient } from "../model/services";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ModalField } from "./ModalField";
 import { defaultPatient } from "../const";
 import { useAudioTranscription } from "@/shared/lib/useAudioTranscription/useAudioTranscription";
 import { useNavigate } from "@tanstack/react-router";
+import type { TPatient } from "@/entities/Patient";
 
 export function CreatePatientModal({
   isOpen,
   onCloseModal,
+  patientData,
 }: {
   isOpen: boolean;
   onCloseModal: () => void;
+  patientData?: TPatient;
 }) {
   const navigate = useNavigate();
-  const [data, setData] = useState(defaultPatient);
+  const [data, setData] = useState(patientData || defaultPatient);
   const [proposedChanges, setProposedChanges] =
     useState<Partial<typeof defaultPatient>>(defaultPatient);
+
+  useEffect(() => {
+    if (patientData) {
+      setData(patientData);
+    }
+  }, [patientData]);
 
   const { startRecording, stopRecording, recording } = useAudioTranscription(
     import.meta.env.VITE_OPENAI_API_KEY,
