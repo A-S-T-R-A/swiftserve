@@ -119,7 +119,7 @@ function RouteComponent() {
               <Input id="notes" value={data.notes} className="col-span-3" />
             </div>
           </div>
-          <PrintSummaryButton id={Number(id)} />
+          <PrintSummaryButton id={Number(appointmentId)} />
         </div>
       </Main>
     </div>
